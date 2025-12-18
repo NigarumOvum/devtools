@@ -16,6 +16,8 @@ export const ui = {
     'category.generators': 'Generators',
     'category.converters': 'Converters',
     'category.validators': 'Validators',
+    'category.textTools': 'Text Tools',
+    // Original tools
     'tools.jsonFormatter': 'JSON Formatter',
     'tools.base64': 'Base64 Codec',
     'tools.uuidGenerator': 'UUID Generator',
@@ -26,6 +28,17 @@ export const ui = {
     'tools.urlCodec': 'URL Codec',
     'tools.regexTester': 'Regex Tester',
     'tools.jwtDecoder': 'JWT Decoder',
+    // New tools
+    'tools.markdownPreview': 'Markdown Preview',
+    'tools.diffChecker': 'Diff Checker',
+    'tools.cssFormatter': 'CSS Formatter',
+    'tools.cronParser': 'Cron Parser',
+    'tools.htmlEntity': 'HTML Entities',
+    'tools.qrGenerator': 'QR Generator',
+    'tools.passwordGenerator': 'Password Gen',
+    'tools.jsonToTs': 'JSON → TypeScript',
+    'tools.sqlFormatter': 'SQL Formatter',
+    // Main
     'main.title': 'DevTools Pro',
     'main.subtitle': 'Professional Developer Tools',
     'main.description': 'A comprehensive collection of essential utilities for frontend and backend developers. Fast, secure, and built with modern technologies.',
@@ -50,6 +63,8 @@ export const ui = {
     'category.generators': 'Generadores',
     'category.converters': 'Conversores',
     'category.validators': 'Validadores',
+    'category.textTools': 'Herramientas de Texto',
+    // Original tools
     'tools.jsonFormatter': 'Formateador JSON',
     'tools.base64': 'Codec Base64',
     'tools.uuidGenerator': 'Generador UUID',
@@ -60,6 +75,17 @@ export const ui = {
     'tools.urlCodec': 'Codec URL',
     'tools.regexTester': 'Tester Regex',
     'tools.jwtDecoder': 'Decodificador JWT',
+    // New tools
+    'tools.markdownPreview': 'Vista Markdown',
+    'tools.diffChecker': 'Comparador Diff',
+    'tools.cssFormatter': 'Formateador CSS',
+    'tools.cronParser': 'Parser Cron',
+    'tools.htmlEntity': 'Entidades HTML',
+    'tools.qrGenerator': 'Generador QR',
+    'tools.passwordGenerator': 'Gen. Contraseña',
+    'tools.jsonToTs': 'JSON → TypeScript',
+    'tools.sqlFormatter': 'Formateador SQL',
+    // Main
     'main.title': 'DevTools Pro',
     'main.subtitle': 'Herramientas Profesionales',
     'main.description': 'Una colección completa de utilidades esenciales para desarrolladores frontend y backend. Rápidas, seguras y construidas con tecnologías modernas.',

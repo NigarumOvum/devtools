@@ -9,16 +9,25 @@ import JsonFormatter from '../components/react/JsonFormatter';
 import Base64Tool from '../components/react/Base64Tool';
 import UuidGenerator from '../components/react/UuidGenerator';
 import RegexTester from '../components/react/RegexTester';
+import MarkdownPreview from '../components/react/MarkdownPreview';
+import DiffChecker from '../components/react/DiffChecker';
+import QrCodeGenerator from '../components/react/QrCodeGenerator';
+import JsonToTypescript from '../components/react/JsonToTypescript';
 
 // Vue Tools
 import JwtDecoder from '../components/vue/JwtDecoder.vue';
 import TimestampConverter from '../components/vue/TimestampConverter.vue';
 import UrlCodec from '../components/vue/UrlCodec.vue';
+import CssFormatter from '../components/vue/CssFormatter.vue';
+import HtmlEntityEncoder from '../components/vue/HtmlEntityEncoder.vue';
+import SqlFormatter from '../components/vue/SqlFormatter.vue';
 
 // Svelte Tools
 import HashGenerator from '../components/svelte/HashGenerator.svelte';
 import ColorConverter from '../components/svelte/ColorConverter.svelte';
 import LoremGenerator from '../components/svelte/LoremGenerator.svelte';
+import CronParser from '../components/svelte/CronParser.svelte';
+import PasswordGenerator from '../components/svelte/PasswordGenerator.svelte';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -34,7 +43,7 @@ const t = useTranslations(lang);
       <header class="text-center mb-16 animate-fade-in">
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6">
           <span>⚡</span>
-          <span>10 Essential Developer Tools</span>
+          <span>19 Essential Developer Tools</span>
         </div>
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
           <span class="gradient-text">{t('main.title')}</span>
@@ -63,7 +72,7 @@ const t = useTranslations(lang);
       <section id="tools" class="mb-16">
         <div class="flex items-center gap-3 mb-8">
           <span class="text-2xl">✨</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Formatters & Encoders</h2>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.formatters')}</h2>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div id="json-formatter" class="animate-slide-up" style="animation-delay: 0.1s;">
@@ -72,6 +81,12 @@ const t = useTranslations(lang);
           <div id="base64-tool" class="animate-slide-up" style="animation-delay: 0.2s;">
             <Base64Tool client:load />
           </div>
+          <div id="css-formatter" class="animate-slide-up" style="animation-delay: 0.3s;">
+            <CssFormatter client:load />
+          </div>
+          <div id="sql-formatter" class="animate-slide-up" style="animation-delay: 0.4s;">
+            <SqlFormatter client:load />
+          </div>
         </div>
       </section>
 
@@ -79,7 +94,7 @@ const t = useTranslations(lang);
       <section class="mb-16">
         <div class="flex items-center gap-3 mb-8">
           <span class="text-2xl">⚡</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Generators</h2>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.generators')}</h2>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           <div id="uuid-generator" class="animate-slide-up" style="animation-delay: 0.1s;">
@@ -91,6 +106,12 @@ const t = useTranslations(lang);
           <div id="lorem-generator" class="animate-slide-up" style="animation-delay: 0.3s;">
             <LoremGenerator client:load />
           </div>
+          <div id="password-generator" class="animate-slide-up" style="animation-delay: 0.4s;">
+            <PasswordGenerator client:load />
+          </div>
+          <div id="qr-generator" class="animate-slide-up" style="animation-delay: 0.5s;">
+            <QrCodeGenerator client:load />
+          </div>
         </div>
       </section>
 
@@ -98,7 +119,7 @@ const t = useTranslations(lang);
       <section class="mb-16">
         <div class="flex items-center gap-3 mb-8">
           <span class="text-2xl">🔄</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Converters</h2>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.converters')}</h2>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           <div id="color-converter" class="animate-slide-up" style="animation-delay: 0.1s;">
@@ -110,14 +131,20 @@ const t = useTranslations(lang);
           <div id="url-codec" class="animate-slide-up" style="animation-delay: 0.3s;">
             <UrlCodec client:load />
           </div>
+          <div id="html-entity-encoder" class="animate-slide-up" style="animation-delay: 0.4s;">
+            <HtmlEntityEncoder client:load />
+          </div>
+          <div id="json-to-typescript" class="animate-slide-up" style="animation-delay: 0.5s;">
+            <JsonToTypescript client:load />
+          </div>
         </div>
       </section>
 
-      <!-- Validators Section -->
+      <!-- Validators & Testers Section -->
       <section class="mb-16">
         <div class="flex items-center gap-3 mb-8">
           <span class="text-2xl">✅</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Testers & Validators</h2>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.validators')}</h2>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div id="regex-tester" class="animate-slide-up" style="animation-delay: 0.1s;">
@@ -125,6 +152,25 @@ const t = useTranslations(lang);
           </div>
           <div id="jwt-decoder" class="animate-slide-up" style="animation-delay: 0.2s;">
             <JwtDecoder client:load />
+          </div>
+          <div id="cron-parser" class="animate-slide-up" style="animation-delay: 0.3s;">
+            <CronParser client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- Text Tools Section -->
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="text-2xl">📝</span>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.textTools')}</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div id="markdown-preview" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.1s;">
+            <MarkdownPreview client:load />
+          </div>
+          <div id="diff-checker" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.2s;">
+            <DiffChecker client:load />
           </div>
         </div>
       </section>
@@ -141,7 +187,7 @@ const t = useTranslations(lang);
             </p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-                <div class="text-3xl font-bold gradient-text">10</div>
+                <div class="text-3xl font-bold gradient-text">19</div>
                 <div class="text-sm text-slate-500 dark:text-slate-400">Tools</div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">

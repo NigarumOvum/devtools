@@ -2,12 +2,32 @@
 import Layout from '../../layouts/Layout.astro';
 import Navigation from '../../components/Navigation.astro';
 import Sidebar from '../../components/Sidebar.astro';
-import RightSidebar from '../../components/RightSidebar.astro';
-import ColorPicker from '../../components/react/ColorPicker';
-import Calculator from '../../components/vue/Calculator.vue';
-import TodoList from '../../components/svelte/TodoList.svelte';
-import ProjectCarousel from '../../components/react/ProjectCarousel';
 import { getLangFromUrl, useTranslations } from '../../utils/i18n';
+
+// React Tools
+import JsonFormatter from '../../components/react/JsonFormatter';
+import Base64Tool from '../../components/react/Base64Tool';
+import UuidGenerator from '../../components/react/UuidGenerator';
+import RegexTester from '../../components/react/RegexTester';
+import MarkdownPreview from '../../components/react/MarkdownPreview';
+import DiffChecker from '../../components/react/DiffChecker';
+import QrCodeGenerator from '../../components/react/QrCodeGenerator';
+import JsonToTypescript from '../../components/react/JsonToTypescript';
+
+// Vue Tools
+import JwtDecoder from '../../components/vue/JwtDecoder.vue';
+import TimestampConverter from '../../components/vue/TimestampConverter.vue';
+import UrlCodec from '../../components/vue/UrlCodec.vue';
+import CssFormatter from '../../components/vue/CssFormatter.vue';
+import HtmlEntityEncoder from '../../components/vue/HtmlEntityEncoder.vue';
+import SqlFormatter from '../../components/vue/SqlFormatter.vue';
+
+// Svelte Tools
+import HashGenerator from '../../components/svelte/HashGenerator.svelte';
+import ColorConverter from '../../components/svelte/ColorConverter.svelte';
+import LoremGenerator from '../../components/svelte/LoremGenerator.svelte';
+import CronParser from '../../components/svelte/CronParser.svelte';
+import PasswordGenerator from '../../components/svelte/PasswordGenerator.svelte';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -16,46 +36,199 @@ const t = useTranslations(lang);
 <Layout title={t('main.title')}>
   <Navigation />
   <Sidebar />
-  <RightSidebar />
   
-  <main class="min-h-screen bg-gray-100 dark:bg-gray-900 pt-16 md:pl-64 lg:pr-64 transition-colors">
-    <div class="max-w-6xl mx-auto p-8">
-      <h1 class="text-4xl font-bold text-center mb-8 text-gray-800 dark:text-white">
-        {t('main.title')}
-      </h1>
-      
-      <p class="text-center text-gray-600 dark:text-gray-400 mb-12">
-        {t('main.description')}
-      </p>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-        <div id="color-picker" class="transform hover:scale-105 transition-transform duration-300">
-          <ColorPicker client:load />
+  <main class="min-h-screen pt-20 md:pl-72 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Hero Section -->
+      <header class="text-center mb-16 animate-fade-in">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6">
+          <span>⚡</span>
+          <span>19 Herramientas Esenciales para Desarrolladores</span>
         </div>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <span class="gradient-text">{t('main.title')}</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          {t('main.description')}
+        </p>
         
-        <div id="calculator" class="transform hover:scale-105 transition-transform duration-300">
-          <Calculator client:load />
+        <div class="flex flex-wrap justify-center gap-3 mt-8">
+          <span class="px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium">
+            ⚛️ React
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium">
+            💚 Vue
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
+            🔥 Svelte
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-medium">
+            🚀 Astro
+          </span>
         </div>
-        
-        <div id="todo-list" class="transform hover:scale-105 transition-transform duration-300">
-          <TodoList client:load />
-        </div>
-      </div>
+      </header>
 
-      <section id="projects" class="mb-16">
-        <ProjectCarousel client:load />
+      <!-- Formatters Section -->
+      <section id="tools" class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="text-2xl">✨</span>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.formatters')}</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div id="json-formatter" class="animate-slide-up" style="animation-delay: 0.1s;">
+            <JsonFormatter client:load />
+          </div>
+          <div id="base64-tool" class="animate-slide-up" style="animation-delay: 0.2s;">
+            <Base64Tool client:load />
+          </div>
+          <div id="css-formatter" class="animate-slide-up" style="animation-delay: 0.3s;">
+            <CssFormatter client:load />
+          </div>
+          <div id="sql-formatter" class="animate-slide-up" style="animation-delay: 0.4s;">
+            <SqlFormatter client:load />
+          </div>
+        </div>
       </section>
+
+      <!-- Generators Section -->
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="text-2xl">⚡</span>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.generators')}</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div id="uuid-generator" class="animate-slide-up" style="animation-delay: 0.1s;">
+            <UuidGenerator client:load />
+          </div>
+          <div id="hash-generator" class="animate-slide-up" style="animation-delay: 0.2s;">
+            <HashGenerator client:load />
+          </div>
+          <div id="lorem-generator" class="animate-slide-up" style="animation-delay: 0.3s;">
+            <LoremGenerator client:load />
+          </div>
+          <div id="password-generator" class="animate-slide-up" style="animation-delay: 0.4s;">
+            <PasswordGenerator client:load />
+          </div>
+          <div id="qr-generator" class="animate-slide-up" style="animation-delay: 0.5s;">
+            <QrCodeGenerator client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- Converters Section -->
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="text-2xl">🔄</span>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.converters')}</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div id="color-converter" class="animate-slide-up" style="animation-delay: 0.1s;">
+            <ColorConverter client:load />
+          </div>
+          <div id="timestamp-converter" class="animate-slide-up" style="animation-delay: 0.2s;">
+            <TimestampConverter client:load />
+          </div>
+          <div id="url-codec" class="animate-slide-up" style="animation-delay: 0.3s;">
+            <UrlCodec client:load />
+          </div>
+          <div id="html-entity-encoder" class="animate-slide-up" style="animation-delay: 0.4s;">
+            <HtmlEntityEncoder client:load />
+          </div>
+          <div id="json-to-typescript" class="animate-slide-up" style="animation-delay: 0.5s;">
+            <JsonToTypescript client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- Validators & Testers Section -->
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="text-2xl">✅</span>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.validators')}</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div id="regex-tester" class="animate-slide-up" style="animation-delay: 0.1s;">
+            <RegexTester client:load />
+          </div>
+          <div id="jwt-decoder" class="animate-slide-up" style="animation-delay: 0.2s;">
+            <JwtDecoder client:load />
+          </div>
+          <div id="cron-parser" class="animate-slide-up" style="animation-delay: 0.3s;">
+            <CronParser client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- Text Tools Section -->
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="text-2xl">📝</span>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.textTools')}</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div id="markdown-preview" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.1s;">
+            <MarkdownPreview client:load />
+          </div>
+          <div id="diff-checker" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.2s;">
+            <DiffChecker client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="mb-16">
+        <div class="glass-card rounded-2xl p-8 md:p-12">
+          <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Acerca de DevTools Pro</h2>
+            <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+              Construido con la arquitectura Islands de Astro, este kit de herramientas muestra una integración 
+              perfecta de componentes React, Vue y Svelte. Todas las herramientas se ejecutan completamente 
+              en tu navegador — ningún dato se envía a ningún servidor.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <div class="text-3xl font-bold gradient-text">19</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Herramientas</div>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <div class="text-3xl font-bold gradient-text">3</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Frameworks</div>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <div class="text-3xl font-bold gradient-text">0</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Datos Enviados</div>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <div class="text-3xl font-bold gradient-text">∞</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Usos Gratis</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="text-center text-sm text-slate-500 dark:text-slate-400 py-8 border-t border-slate-200 dark:border-slate-800">
+        <p>Construido con ❤️ usando Astro, React, Vue & Svelte</p>
+      </footer>
     </div>
   </main>
 </Layout>
 
-<style is:global>
-  .swiper-button-next,
-  .swiper-button-prev {
-    color: #7c3aed !important;
+<style>
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-
-  .swiper-pagination-bullet-active {
-    background: #7c3aed !important;
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+    opacity: 0;
   }
 </style>

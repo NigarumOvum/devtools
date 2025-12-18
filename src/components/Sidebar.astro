@@ -12,6 +12,8 @@ const toolCategories = [
     tools: [
       { name: t('tools.jsonFormatter'), href: '#json-formatter', icon: '📋' },
       { name: t('tools.base64'), href: '#base64-tool', icon: '🔐' },
+      { name: t('tools.cssFormatter'), href: '#css-formatter', icon: '🎨' },
+      { name: t('tools.sqlFormatter'), href: '#sql-formatter', icon: '🗃️' },
     ]
   },
   {
@@ -21,15 +23,19 @@ const toolCategories = [
       { name: t('tools.uuidGenerator'), href: '#uuid-generator', icon: '🎲' },
       { name: t('tools.hashGenerator'), href: '#hash-generator', icon: '🔒' },
       { name: t('tools.loremGenerator'), href: '#lorem-generator', icon: '📝' },
+      { name: t('tools.passwordGenerator'), href: '#password-generator', icon: '🔑' },
+      { name: t('tools.qrGenerator'), href: '#qr-generator', icon: '📱' },
     ]
   },
   {
     name: t('category.converters'),
     icon: '🔄',
     tools: [
-      { name: t('tools.colorConverter'), href: '#color-converter', icon: '🎨' },
+      { name: t('tools.colorConverter'), href: '#color-converter', icon: '🌈' },
       { name: t('tools.timestampConverter'), href: '#timestamp-converter', icon: '⏰' },
       { name: t('tools.urlCodec'), href: '#url-codec', icon: '🔗' },
+      { name: t('tools.htmlEntity'), href: '#html-entity-encoder', icon: '🔤' },
+      { name: t('tools.jsonToTs'), href: '#json-to-typescript', icon: '🔷' },
     ]
   },
   {
@@ -38,6 +44,15 @@ const toolCategories = [
     tools: [
       { name: t('tools.regexTester'), href: '#regex-tester', icon: '🔍' },
       { name: t('tools.jwtDecoder'), href: '#jwt-decoder', icon: '🎫' },
+      { name: t('tools.cronParser'), href: '#cron-parser', icon: '⏱️' },
+    ]
+  },
+  {
+    name: t('category.textTools'),
+    icon: '📝',
+    tools: [
+      { name: t('tools.markdownPreview'), href: '#markdown-preview', icon: '📄' },
+      { name: t('tools.diffChecker'), href: '#diff-checker', icon: '📊' },
     ]
   }
 ];
@@ -71,7 +86,7 @@ const toolCategories = [
                          transition-all duration-200 group"
                 >
                   <span class="text-lg group-hover:scale-110 transition-transform duration-200">{tool.icon}</span>
-                  <span class="font-medium">{tool.name}</span>
+                  <span class="font-medium text-sm">{tool.name}</span>
                 </a>
               </li>
             ))}
