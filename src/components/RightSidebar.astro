@@ -1,0 +1,61 @@
+---
+import { getLangFromUrl, useTranslations } from '../utils/i18n';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const resourceLinks = [
+  { name: 'Documentation', href: 'https://docs.astro.build', icon: '📚' },
+  { name: 'GitHub', href: 'https://github.com', icon: '💻' },
+  { name: 'Community', href: 'https://astro.build/chat', icon: '👥' },
+  { name: 'Blog', href: '/blog', icon: '📝' }
+];
+
+const socialLinks = [
+  { name: 'Twitter', href: 'https://twitter.com', icon: '🐦' },
+  { name: 'LinkedIn', href: 'https://linkedin.com', icon: '💼' },
+  { name: 'Discord', href: 'https://discord.com', icon: '💬' }
+];
+---
+
+<aside class="fixed right-0 top-16 h-full w-64 bg-white dark:bg-gray-800 shadow-lg hidden lg:block transition-colors">
+  <div class="p-4">
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Resources</h2>
+      <ul class="space-y-2">
+        {resourceLinks.map(item => (
+          <li>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center space-x-3 p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-purple-900 hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
+            >
+              <span class="text-xl">{item.icon}</span>
+              <span>{item.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Connect</h2>
+      <ul class="space-y-2">
+        {socialLinks.map(item => (
+          <li>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center space-x-3 p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-purple-900 hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
+            >
+              <span class="text-xl">{item.icon}</span>
+              <span>{item.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</aside>

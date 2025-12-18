@@ -1,0 +1,61 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navigation from '../../components/Navigation.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import RightSidebar from '../../components/RightSidebar.astro';
+import ColorPicker from '../../components/react/ColorPicker';
+import Calculator from '../../components/vue/Calculator.vue';
+import TodoList from '../../components/svelte/TodoList.svelte';
+import ProjectCarousel from '../../components/react/ProjectCarousel';
+import { getLangFromUrl, useTranslations } from '../../utils/i18n';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<Layout title={t('main.title')}>
+  <Navigation />
+  <Sidebar />
+  <RightSidebar />
+  
+  <main class="min-h-screen bg-gray-100 dark:bg-gray-900 pt-16 md:pl-64 lg:pr-64 transition-colors">
+    <div class="max-w-6xl mx-auto p-8">
+      <h1 class="text-4xl font-bold text-center mb-8 text-gray-800 dark:text-white">
+        {t('main.title')}
+      </h1>
+      
+      <p class="text-center text-gray-600 dark:text-gray-400 mb-12">
+        {t('main.description')}
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div id="color-picker" class="transform hover:scale-105 transition-transform duration-300">
+          <ColorPicker client:load />
+        </div>
+        
+        <div id="calculator" class="transform hover:scale-105 transition-transform duration-300">
+          <Calculator client:load />
+        </div>
+        
+        <div id="todo-list" class="transform hover:scale-105 transition-transform duration-300">
+          <TodoList client:load />
+        </div>
+      </div>
+
+      <section id="projects" class="mb-16">
+        <ProjectCarousel client:load />
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<style is:global>
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: #7c3aed !important;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: #7c3aed !important;
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+import { languages } from '../i18n/ui';
+
+const currentPath = Astro.url.pathname;
+const currentLang = currentPath.split('/')[1] || 'en';
+---
+
+<div class="relative inline-block text-left">
+  <select
+    id="language-select"
+    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+  >
+    {Object.entries(languages).map(([lang, label]) => (
+      <option value={lang} selected={currentLang === lang}>
+        {label}
+      </option>
+    ))}
+  </select>
+</div>
+
+<script>
+  const select = document.getElementById('language-select') as HTMLSelectElement;
+  select.addEventListener('change', (e) => {
+    const newLang = (e.target as HTMLSelectElement).value;
+    const [, ...currentPathParts] = window.location.pathname.split('/');
+    
+    if (newLang === 'en') {
+      window.location.pathname = '/' + currentPathParts.join('/');
+    } else {
+      window.location.pathname = `/${newLang}/${currentPathParts.join('/')}`;
+    }
+  });
+</script>

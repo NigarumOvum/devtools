@@ -1,0 +1,101 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { getLangFromUrl, useTranslations } from '../utils/i18n';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const toolCategories = [
+  {
+    name: t('category.formatters'),
+    icon: '✨',
+    tools: [
+      { name: t('tools.jsonFormatter'), href: '#json-formatter', icon: '📋' },
+      { name: t('tools.base64'), href: '#base64-tool', icon: '🔐' },
+    ]
+  },
+  {
+    name: t('category.generators'),
+    icon: '⚡',
+    tools: [
+      { name: t('tools.uuidGenerator'), href: '#uuid-generator', icon: '🎲' },
+      { name: t('tools.hashGenerator'), href: '#hash-generator', icon: '🔒' },
+      { name: t('tools.loremGenerator'), href: '#lorem-generator', icon: '📝' },
+    ]
+  },
+  {
+    name: t('category.converters'),
+    icon: '🔄',
+    tools: [
+      { name: t('tools.colorConverter'), href: '#color-converter', icon: '🎨' },
+      { name: t('tools.timestampConverter'), href: '#timestamp-converter', icon: '⏰' },
+      { name: t('tools.urlCodec'), href: '#url-codec', icon: '🔗' },
+    ]
+  },
+  {
+    name: t('category.validators'),
+    icon: '✅',
+    tools: [
+      { name: t('tools.regexTester'), href: '#regex-tester', icon: '🔍' },
+      { name: t('tools.jwtDecoder'), href: '#jwt-decoder', icon: '🎫' },
+    ]
+  }
+];
+---
+
+<aside class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-72 glass-card border-r border-slate-200/50 dark:border-slate-700/50 hidden md:block overflow-y-auto transition-all duration-300">
+  <div class="p-5">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <span class="text-xl">🧰</span>
+        {t('sidebar.devTools')}
+      </h2>
+      <ThemeToggle />
+    </div>
+    
+    <div class="space-y-4">
+      {toolCategories.map(category => (
+        <div class="category-group">
+          <div class="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span>{category.icon}</span>
+            <span>{category.name}</span>
+          </div>
+          <ul class="space-y-1">
+            {category.tools.map(tool => (
+              <li>
+                <a
+                  href={tool.href}
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 
+                         hover:bg-gradient-to-r hover:from-accent-500/10 hover:to-primary-500/10 
+                         hover:text-accent-600 dark:hover:text-accent-400 
+                         transition-all duration-200 group"
+                >
+                  <span class="text-lg group-hover:scale-110 transition-transform duration-200">{tool.icon}</span>
+                  <span class="font-medium">{tool.name}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    
+    <div class="mt-8 p-4 rounded-xl bg-gradient-to-br from-accent-500/10 to-primary-500/10 border border-accent-500/20">
+      <p class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+        <span>💡</span>
+        <span>{t('sidebar.tip')}</span>
+      </p>
+    </div>
+  </div>
+</aside>
+
+<style>
+  aside::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  aside::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.2);
+    border-radius: 2px;
+  }
+</style>
