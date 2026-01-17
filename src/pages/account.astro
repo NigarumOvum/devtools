@@ -1,0 +1,58 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navigation from "../components/Navigation.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getSession } from "auth-astro/server";
+import AccountSettings from "../components/AccountSettings";
+
+const session = await getSession(Astro.request);
+
+// Redirect if not logged in
+if (!session?.user) {
+    return Astro.redirect("/?login=required");
+}
+---
+
+<Layout title="Account Settings | DevTools Pro">
+    <Navigation />
+    <Sidebar />
+
+    <main class="min-h-screen pt-20 md:pl-72 transition-all duration-300">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Breadcrumbs -->
+            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-8">
+                <a href="/" class="hover:text-blue-500 transition-colors"
+                    >Home</a
+                >
+                <span>/</span>
+                <span class="text-slate-900 dark:text-white font-semibold"
+                    >Account Settings</span
+                >
+            </nav>
+
+            <!-- Page Header -->
+            <div class="mb-10">
+                <div class="flex items-center gap-4 mb-4">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-2xl shadow-lg ring-4 ring-slate-500/10"
+                    >
+                        ⚙️
+                    </div>
+                    <div>
+                        <h1
+                            class="text-3xl font-black text-slate-900 dark:text-white tracking-tight"
+                        >
+                            Account Settings
+                        </h1>
+                        <p class="text-slate-500 text-sm">
+                            Manage your profile and API keys
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Component -->
+            <AccountSettings client:load session={session} />
+        </div>
+    </main>
+</Layout>

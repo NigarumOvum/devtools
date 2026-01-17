@@ -1,159 +1,252 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Navigation from '../components/Navigation.astro';
-import Sidebar from '../components/Sidebar.astro';
-import { getLangFromUrl, useTranslations } from '../utils/i18n';
+import Layout from "../layouts/Layout.astro";
+import Navigation from "../components/Navigation.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getLangFromUrl, useTranslations } from "../utils/i18n";
+import { getSession } from "auth-astro/server";
+import { AuthButton } from "../components/AuthButton";
+import { ExpertChat } from "../components/ExpertChat";
+import { PromptLibrary } from "../components/PromptLibrary";
 
 // React Tools
-import JsonFormatter from '../components/react/JsonFormatter';
-import Base64Tool from '../components/react/Base64Tool';
-import UuidGenerator from '../components/react/UuidGenerator';
-import RegexTester from '../components/react/RegexTester';
-import MarkdownPreview from '../components/react/MarkdownPreview';
-import DiffChecker from '../components/react/DiffChecker';
-import QrCodeGenerator from '../components/react/QrCodeGenerator';
-import JsonToTypescript from '../components/react/JsonToTypescript';
+import JsonFormatter from "../components/react/JsonFormatter";
+import Base64Tool from "../components/react/Base64Tool";
+import UuidGenerator from "../components/react/UuidGenerator";
+import RegexTester from "../components/react/RegexTester";
+import MarkdownPreview from "../components/react/MarkdownPreview";
+import DiffChecker from "../components/react/DiffChecker";
+import QrCodeGenerator from "../components/react/QrCodeGenerator";
+import JsonToTypescript from "../components/react/JsonToTypescript";
 
 // Vue Tools
-import JwtDecoder from '../components/vue/JwtDecoder.vue';
-import TimestampConverter from '../components/vue/TimestampConverter.vue';
-import UrlCodec from '../components/vue/UrlCodec.vue';
-import CssFormatter from '../components/vue/CssFormatter.vue';
-import HtmlEntityEncoder from '../components/vue/HtmlEntityEncoder.vue';
-import SqlFormatter from '../components/vue/SqlFormatter.vue';
+import JwtDecoder from "../components/vue/JwtDecoder.vue";
+import TimestampConverter from "../components/vue/TimestampConverter.vue";
+import UrlCodec from "../components/vue/UrlCodec.vue";
+import CssFormatter from "../components/vue/CssFormatter.vue";
+import HtmlEntityEncoder from "../components/vue/HtmlEntityEncoder.vue";
+import SqlFormatter from "../components/vue/SqlFormatter.vue";
 
 // Svelte Tools
-import HashGenerator from '../components/svelte/HashGenerator.svelte';
-import ColorConverter from '../components/svelte/ColorConverter.svelte';
-import LoremGenerator from '../components/svelte/LoremGenerator.svelte';
-import CronParser from '../components/svelte/CronParser.svelte';
-import PasswordGenerator from '../components/svelte/PasswordGenerator.svelte';
+import HashGenerator from "../components/svelte/HashGenerator.svelte";
+import ColorConverter from "../components/svelte/ColorConverter.svelte";
+import LoremGenerator from "../components/svelte/LoremGenerator.svelte";
+import CronParser from "../components/svelte/CronParser.svelte";
+import PasswordGenerator from "../components/svelte/PasswordGenerator.svelte";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+const session = await getSession(Astro.request);
 ---
 
-<Layout title={t('main.title')}>
+<Layout title={t("main.title")}>
   <Navigation />
   <Sidebar />
-  
+
   <main class="min-h-screen pt-20 md:pl-72 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero Section -->
       <header class="text-center mb-16 animate-fade-in">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6"
+        >
           <span>⚡</span>
           <span>19 Essential Developer Tools</span>
         </div>
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-          <span class="gradient-text">{t('main.title')}</span>
+          <span class="gradient-text">{t("main.title")}</span>
         </h1>
-        <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          {t('main.description')}
+        <p
+          class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed"
+        >
+          {t("main.description")}
         </p>
-        
+
         <div class="flex flex-wrap justify-center gap-3 mt-8">
-          <span class="px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium">
+          <span
+            class="px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium"
+          >
             ⚛️ React
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium">
+          <span
+            class="px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium"
+          >
             💚 Vue
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
+          <span
+            class="px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium"
+          >
             🔥 Svelte
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-medium">
+          <span
+            class="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-medium"
+          >
             🚀 Astro
           </span>
         </div>
       </header>
+    </div>
 
-      <!-- Formatters Section -->
-      <section id="tools" class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">✨</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.formatters')}</h2>
+    <!-- AI Multi-Agent Studio CTA -->
+    <section class="mb-20">
+      <div
+        class="relative overflow-hidden group glass-card rounded-[3rem] p-1 border-0 shadow-2xl"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-indigo-600/20 group-hover:scale-110 transition-transform duration-700"
+        >
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div id="json-formatter" class="animate-slide-up" style="animation-delay: 0.1s;">
-            <JsonFormatter client:load />
+        <div class="relative p-10 md:p-16 text-center">
+          <div
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-bold mb-8 ring-1 ring-blue-500/20"
+          >
+            <span>✨</span> NEW FEATURE
           </div>
-          <div id="base64-tool" class="animate-slide-up" style="animation-delay: 0.2s;">
-            <Base64Tool client:load />
-          </div>
-          <div id="css-formatter" class="animate-slide-up" style="animation-delay: 0.3s;">
-            <CssFormatter client:load />
-          </div>
-          <div id="sql-formatter" class="animate-slide-up" style="animation-delay: 0.4s;">
-            <SqlFormatter client:load />
+          <h2
+            class="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight"
+          >
+            AI Expert <span class="gradient-text">Studio</span>
+          </h2>
+          <p
+            class="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
+            A standalone workspace for multi-agent collaboration. Consult with
+            Senior Engineers powered by OpenAI, Claude, and Gemini in a
+            specialized chat environment.
+          </p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a
+              href="/ai-studio"
+              class="bg-white text-slate-900 hover:bg-slate-100 px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-white/10 active:scale-95"
+            >
+              Enter Studio
+            </a>
+            {!session && <AuthButton client:load session={session} />}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Generators Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">⚡</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.generators')}</h2>
+    <!-- Formatters Section -->
+    <section id="tools" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <span class="text-2xl">✨</span>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
+          {t("category.formatters")}
+        </h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div
+          id="json-formatter"
+          class="animate-slide-up"
+          style="animation-delay: 0.1s;"
+        >
+          <JsonFormatter client:load />
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div id="uuid-generator" class="animate-slide-up" style="animation-delay: 0.1s;">
-            <UuidGenerator client:load />
-          </div>
-          <div id="hash-generator" class="animate-slide-up" style="animation-delay: 0.2s;">
-            <HashGenerator client:load />
-          </div>
-          <div id="lorem-generator" class="animate-slide-up" style="animation-delay: 0.3s;">
-            <LoremGenerator client:load />
-          </div>
-          <div id="password-generator" class="animate-slide-up" style="animation-delay: 0.4s;">
-            <PasswordGenerator client:load />
-          </div>
-          <div id="qr-generator" class="animate-slide-up" style="animation-delay: 0.5s;">
-            <QrCodeGenerator client:load />
-          </div>
+        <div
+          id="base64-tool"
+          class="animate-slide-up"
+          style="animation-delay: 0.2s;"
+        >
+          <Base64Tool client:load />
         </div>
-      </section>
+        <div
+          id="css-formatter"
+          class="animate-slide-up"
+          style="animation-delay: 0.3s;"
+        >
+          <CssFormatter client:load />
+        </div>
+        <div
+          id="sql-formatter"
+          class="animate-slide-up"
+          style="animation-delay: 0.4s;"
+        >
+          <SqlFormatter client:load />
+        </div>
+      </div>
+    </section>
 
-      <!-- Converters Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">🔄</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.converters')}</h2>
+    <!-- Generators Section -->
+    <section class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <span class="text-2xl">⚡</span>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
+          {t("category.generators")}
+        </h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          id="uuid-generator"
+          class="animate-slide-up"
+          style="animation-delay: 0.1s;"
+        >
+          <UuidGenerator client:load />
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div id="color-converter" class="animate-slide-up" style="animation-delay: 0.1s;">
-            <ColorConverter client:load />
-          </div>
-          <div id="timestamp-converter" class="animate-slide-up" style="animation-delay: 0.2s;">
-            <TimestampConverter client:load />
-          </div>
-          <div id="url-codec" class="animate-slide-up" style="animation-delay: 0.3s;">
-            <UrlCodec client:load />
-          </div>
-          <div id="html-entity-encoder" class="animate-slide-up" style="animation-delay: 0.4s;">
-            <HtmlEntityEncoder client:load />
-          </div>
-          <div id="json-to-typescript" class="animate-slide-up" style="animation-delay: 0.5s;">
-            <JsonToTypescript client:load />
-          </div>
+        <div
+          id="color-converter"
+          class="animate-slide-up"
+          style="animation-delay: 0.1s;"
+        >
+          <ColorConverter client:load />
         </div>
-      </section>
+        <div
+          id="timestamp-converter"
+          class="animate-slide-up"
+          style="animation-delay: 0.2s;"
+        >
+          <TimestampConverter client:load />
+        </div>
+        <div
+          id="url-codec"
+          class="animate-slide-up"
+          style="animation-delay: 0.3s;"
+        >
+          <UrlCodec client:load />
+        </div>
+        <div
+          id="html-entity-encoder"
+          class="animate-slide-up"
+          style="animation-delay: 0.4s;"
+        >
+          <HtmlEntityEncoder client:load />
+        </div>
+        <div
+          id="json-to-typescript"
+          class="animate-slide-up"
+          style="animation-delay: 0.5s;"
+        >
+          <JsonToTypescript client:load />
+        </div>
+      </div>
 
       <!-- Validators & Testers Section -->
       <section class="mb-16">
         <div class="flex items-center gap-3 mb-8">
           <span class="text-2xl">✅</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.validators')}</h2>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
+            {t("category.validators")}
+          </h2>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div id="regex-tester" class="animate-slide-up" style="animation-delay: 0.1s;">
+          <div
+            id="regex-tester"
+            class="animate-slide-up"
+            style="animation-delay: 0.1s;"
+          >
             <RegexTester client:load />
           </div>
-          <div id="jwt-decoder" class="animate-slide-up" style="animation-delay: 0.2s;">
+          <div
+            id="jwt-decoder"
+            class="animate-slide-up"
+            style="animation-delay: 0.2s;"
+          >
             <JwtDecoder client:load />
           </div>
-          <div id="cron-parser" class="animate-slide-up" style="animation-delay: 0.3s;">
+          <div
+            id="cron-parser"
+            class="animate-slide-up"
+            style="animation-delay: 0.3s;"
+          >
             <CronParser client:load />
           </div>
         </div>
@@ -163,13 +256,23 @@ const t = useTranslations(lang);
       <section class="mb-16">
         <div class="flex items-center gap-3 mb-8">
           <span class="text-2xl">📝</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.textTools')}</h2>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
+            {t("category.textTools")}
+          </h2>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div id="markdown-preview" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.1s;">
+          <div
+            id="markdown-preview"
+            class="animate-slide-up lg:col-span-2"
+            style="animation-delay: 0.1s;"
+          >
             <MarkdownPreview client:load />
           </div>
-          <div id="diff-checker" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.2s;">
+          <div
+            id="diff-checker"
+            class="animate-slide-up lg:col-span-2"
+            style="animation-delay: 0.2s;"
+          >
             <DiffChecker client:load />
           </div>
         </div>
@@ -179,28 +282,39 @@ const t = useTranslations(lang);
       <section id="about" class="mb-16">
         <div class="glass-card rounded-2xl p-8 md:p-12">
           <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">About DevTools Pro</h2>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">
+              About DevTools Pro
+            </h2>
             <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-              Built with Astro's Islands architecture, this toolkit showcases seamless integration of 
-              React, Vue, and Svelte components. All tools run entirely in your browser — no data 
-              is ever sent to any server.
+              Built with Astro's Islands architecture, this toolkit showcases
+              seamless integration of React, Vue, and Svelte components. All
+              tools run entirely in your browser — no data is ever sent to any
+              server.
             </p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">19</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Tools</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Tools
+                </div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">3</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Frameworks</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Frameworks
+                </div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">0</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Data Sent</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Data Sent
+                </div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">∞</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Free Uses</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Free Uses
+                </div>
               </div>
             </div>
           </div>
@@ -208,10 +322,12 @@ const t = useTranslations(lang);
       </section>
 
       <!-- Footer -->
-      <footer class="text-center text-sm text-slate-500 dark:text-slate-400 py-8 border-t border-slate-200 dark:border-slate-800">
+      <footer
+        class="text-center text-sm text-slate-500 dark:text-slate-400 py-8 border-t border-slate-200 dark:border-slate-800"
+      >
         <p>Built with ❤️ using Astro, React, Vue & Svelte</p>
       </footer>
-    </div>
+    </section>
   </main>
 </Layout>
 
@@ -226,7 +342,7 @@ const t = useTranslations(lang);
       transform: translateY(0);
     }
   }
-  
+
   .animate-slide-up {
     animation: slideUp 0.5s ease-out forwards;
     opacity: 0;

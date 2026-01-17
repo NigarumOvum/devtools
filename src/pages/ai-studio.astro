@@ -1,0 +1,109 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navigation from "../components/Navigation.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getLangFromUrl, useTranslations } from "../utils/i18n";
+import { getSession } from "auth-astro/server";
+import { StudioSection } from "../components/StudioSection";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const session = await getSession(Astro.request);
+---
+
+<Layout title="AI Expert Multi-Agent Studio | DevTools Pro">
+    <Navigation />
+    <Sidebar />
+
+    <main class="min-h-screen pt-20 md:pl-72 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Breadcrumbs / Navigation -->
+            <nav
+                class="flex items-center gap-2 text-sm text-slate-500 mb-8 overflow-x-auto whitespace-nowrap pb-2"
+            >
+                <a href="/" class="hover:text-blue-500 transition-colors"
+                    >Home</a
+                >
+                <span>/</span>
+                <span class="text-slate-900 dark:text-white font-semibold"
+                    >AI Multi-Agent Studio</span
+                >
+            </nav>
+
+            <!-- Page Header -->
+            <div class="mb-12">
+                <div class="flex items-center gap-4 mb-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg ring-4 ring-blue-500/10"
+                    >
+                        🤖
+                    </div>
+                    <h1
+                        class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight"
+                    >
+                        AI Expert <span class="text-blue-500"
+                            >Multi-Agent Studio</span
+                        >
+                    </h1>
+                </div>
+                <p
+                    class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed"
+                >
+                    Collaborate with a team of specialized AI agents. Toggle
+                    between OpenAI for reasoning, Claude for coding, and Gemini
+                    for multi-modal analysis.
+                </p>
+            </div>
+
+            <!-- Studio Interface -->
+            <StudioSection client:load initialSession={session} />
+
+            <!-- Footer Info -->
+            <div
+                class="mt-20 pt-12 border-t border-slate-200 dark:border-slate-800"
+            >
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+                    >
+                        <h3
+                            class="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"
+                        >
+                            <span class="text-blue-500">🔒</span> Privacy First
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            All chats are stored locally in your browser. We
+                            never use your data to train models.
+                        </p>
+                    </div>
+                    <div
+                        class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+                    >
+                        <h3
+                            class="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"
+                        >
+                            <span class="text-purple-500">⚡</span> High Performance
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Optimized streaming responses and specialized system
+                            prompts for developer workflows.
+                        </p>
+                    </div>
+                    <div
+                        class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+                    >
+                        <h3
+                            class="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"
+                        >
+                            <span class="text-emerald-500">🧠</span> Multi-Model
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Seamlessly switch context between different
+                            providers without losing your chat history.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>

@@ -1,89 +1,137 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
-import LanguageSelector from './LanguageSelector.astro';
-import { getLangFromUrl, useTranslations } from '../utils/i18n';
+import ThemeToggle from "./ThemeToggle.astro";
+import LanguageSelector from "./LanguageSelector.astro";
+import { getLangFromUrl, useTranslations } from "../utils/i18n";
+import { getSession } from "auth-astro/server";
+import { AuthButton } from "./AuthButton";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+const session = await getSession(Astro.request);
 
 const navItems = [
-  { name: t('nav.home'), href: '/' },
-  { name: t('nav.tools'), href: '#tools' },
-  { name: t('nav.about'), href: '#about' }
+  { name: t("nav.home"), href: "/" },
+  { name: "🤖 AI Studio", href: "/ai-studio" },
+  { name: t("nav.tools"), href: "/#tools" },
+  { name: t("nav.about"), href: "/#about" },
 ];
 ---
 
-<nav class="glass-card fixed w-full top-0 z-50 border-b border-slate-200/50 dark:border-slate-700/50">
+<nav
+  class="glass-card fixed w-full top-0 z-50 border-b border-slate-200/50 dark:border-slate-700/50"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
       <div class="flex items-center gap-3">
         <a href="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-primary-500 flex items-center justify-center shadow-lg shadow-accent-500/25 group-hover:shadow-xl group-hover:shadow-accent-500/30 transition-all duration-300">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-primary-500 flex items-center justify-center shadow-lg shadow-accent-500/25 group-hover:shadow-xl group-hover:shadow-accent-500/30 transition-all duration-300"
+          >
             <span class="text-xl">🛠️</span>
           </div>
           <div>
             <span class="text-xl font-bold gradient-text">DevTools</span>
-            <span class="hidden sm:inline text-slate-400 dark:text-slate-500 text-sm ml-2">Pro</span>
+            <span
+              class="hidden sm:inline text-slate-400 dark:text-slate-500 text-sm ml-2"
+              >Pro</span
+            >
           </div>
         </a>
       </div>
-      
+
       <div class="flex items-center gap-4">
         <div class="hidden md:flex items-center gap-1">
-          {navItems.map(item => (
-            <a
-              href={item.href}
-              class="text-slate-600 dark:text-slate-300 hover:text-accent-600 dark:hover:text-accent-400 
+          {
+            navItems.map((item) => (
+              <a
+                href={item.href}
+                class="text-slate-600 dark:text-slate-300 hover:text-accent-600 dark:hover:text-accent-400 
                      px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
                      hover:bg-accent-500/10"
-            >
-              {item.name}
-            </a>
-          ))}
+              >
+                {item.name}
+              </a>
+            ))
+          }
         </div>
-        
-        <div class="hidden md:block h-6 w-px bg-slate-200 dark:bg-slate-700"></div>
-        
+
+        <div class="hidden md:block h-6 w-px bg-slate-200 dark:bg-slate-700">
+        </div>
+
+        <div class="hidden md:block">
+          <AuthButton client:load session={session} />
+        </div>
+
+        {
+          session?.user && (
+            <a
+              href="/account"
+              class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              title="Account Settings"
+            >
+              <span>⚙️</span>
+              <span class="hidden lg:inline">Account</span>
+            </a>
+          )
+        }
+
         <LanguageSelector />
-        
+
         <div class="md:hidden">
           <ThemeToggle />
         </div>
-        
+
         <!-- Mobile menu button -->
-        <button 
+        <button
           id="mobile-menu-btn"
           class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           aria-label="Toggle mobile menu"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
       </div>
     </div>
   </div>
-  
+
   <!-- Mobile Menu -->
-  <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200/50 dark:border-slate-700/50">
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden border-t border-slate-200/50 dark:border-slate-700/50"
+  >
     <div class="px-4 py-4 space-y-2">
-      {navItems.map(item => (
-        <a
-          href={item.href}
-          class="block px-4 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-accent-500/10 hover:text-accent-600 dark:hover:text-accent-400 font-medium transition-all"
-        >
-          {item.name}
-        </a>
-      ))}
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            class="block px-4 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-accent-500/10 hover:text-accent-600 dark:hover:text-accent-400 font-medium transition-all"
+          >
+            {item.name}
+          </a>
+        ))
+      }
+      <div class="pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
+        <AuthButton client:load session={session} />
+      </div>
     </div>
   </div>
 </nav>
 
 <script>
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  
-  mobileMenuBtn?.addEventListener('click', () => {
-    mobileMenu?.classList.toggle('hidden');
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  mobileMenuBtn?.addEventListener("click", () => {
+    mobileMenu?.classList.toggle("hidden");
   });
 </script>
