@@ -17,6 +17,7 @@ import MarkdownPreview from "../components/react/MarkdownPreview";
 import DiffChecker from "../components/react/DiffChecker";
 import QrCodeGenerator from "../components/react/QrCodeGenerator";
 import JsonToTypescript from "../components/react/JsonToTypescript";
+import WebpageToMD from "../components/react/WebpageToMD";
 
 // Vue Tools
 import JwtDecoder from "../components/vue/JwtDecoder.vue";
@@ -50,7 +51,7 @@ const session = await getSession(Astro.request);
           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6"
         >
           <span>⚡</span>
-          <span>19 Essential Developer Tools</span>
+          <span>20 Essential Developer Tools</span>
         </div>
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
           <span class="gradient-text">{t("main.title")}</span>
@@ -217,6 +218,13 @@ const session = await getSession(Astro.request);
         >
           <JsonToTypescript client:load />
         </div>
+        <div
+          id="webpage-to-md"
+          class="animate-slide-up"
+          style="animation-delay: 0.6s;"
+        >
+          <WebpageToMD client:load />
+        </div>
       </div>
 
       <!-- Validators & Testers Section -->
@@ -293,7 +301,7 @@ const session = await getSession(Astro.request);
             </p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-                <div class="text-3xl font-bold gradient-text">19</div>
+                <div class="text-3xl font-bold gradient-text">20</div>
                 <div class="text-sm text-slate-500 dark:text-slate-400">
                   Tools
                 </div>
