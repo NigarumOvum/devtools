@@ -13,8 +13,13 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) =
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (password !== confirmPassword) {
             setError('Passwords do not match');
+            return;
+        }
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters long');
             return;
         }
 
@@ -108,4 +113,3 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) =
         </div>
     );
 };
-

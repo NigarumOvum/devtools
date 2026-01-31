@@ -8,15 +8,29 @@ export const POST: APIRoute = async ({ request }) => {
     try {
         const { token, password } = await request.json();
 
-        const verificationToken = await db.query.verificationTokens.findFirst({
-            where: eq(verificationTokens.token, token),
-        });
+        // Find the token using standard select for better compatibility
+        const [verificationToken] = await db.select()
+            .from(verificationTokens)
+            .where(eq(verificationTokens.token, token))
+            .limit(1);
 
-        if (!verificationToken || verificationToken.expires < new Date()) {
+        if (!verificationToken) {
             return new Response(JSON.stringify({ error: 'Invalid or expired token' }), { status: 400 });
         }
 
-        const email = verificationToken.identifier.replace('reset:', '');
+        // Ensure date comparison is robust
+        const now = new Date();
+        const expiresAt = new Date(verificationToken.expires);
+
+        if (expiresAt < now) {
+            await db.delete(verificationTokens).where(eq(verificationTokens.token, token));
+            return new Response(JSON.stringify({ error: 'Token has expired' }), { status: 400 });
+        }
+
+        const email = verificationToken.identifier.startsWith('reset:')
+            ? verificationToken.identifier.replace('reset:', '')
+            : verificationToken.identifier;
+
         const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
         if (!user) {

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ExpertChat } from './ExpertChat';
 import { PromptLibrary } from './PromptLibrary';
 import { AuthButton } from './AuthButton';
+import { AgentCard } from './AgentCard';
+import { AgentBuilder } from './AgentBuilder';
 import { PROMPT_LIBRARY } from '../lib/ai/prompt-library';
 import { AGENTS } from '../lib/ai/agents';
 
@@ -9,6 +11,26 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
     const [user, setUser] = useState(initialSession?.user || null);
     const [mounted, setMounted] = useState(false);
     const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+    const [customAgents, setCustomAgents] = useState<any[]>([]);
+    const [showBuilder, setShowBuilder] = useState(false);
+    const [selectedAgentId, setSelectedAgentId] = useState('senior_se');
+    const [loadingAgents, setLoadingAgents] = useState(false);
+
+    const fetchCustomAgents = useCallback(async () => {
+        if (!user) return;
+        setLoadingAgents(true);
+        try {
+            const res = await fetch('/api/agents');
+            if (res.ok) {
+                const data = await res.json();
+                setCustomAgents(data);
+            }
+        } catch (e) {
+            console.error('Failed to fetch agents:', e);
+        } finally {
+            setLoadingAgents(false);
+        }
+    }, [user]);
 
     useEffect(() => {
         setMounted(true);
@@ -26,11 +48,33 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
         }
     }, [initialSession]);
 
+    useEffect(() => {
+        if (user) {
+            fetchCustomAgents();
+        }
+    }, [user, fetchCustomAgents]);
+
     const handlePromptSelect = useCallback((template: string) => {
         setSelectedPrompt(template);
         // Scroll to chat
         document.getElementById('expert-chat')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, []);
+
+    const handleCreateAgent = async (agentData: any) => {
+        try {
+            const res = await fetch('/api/agents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(agentData),
+            });
+            if (res.ok) {
+                await fetchCustomAgents();
+                setShowBuilder(false);
+            }
+        } catch (e) {
+            console.error('Failed to create agent:', e);
+        }
+    };
 
     if (!mounted) return (
         <div className="space-y-6">
@@ -61,11 +105,48 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
     const advancedPrompts = PROMPT_LIBRARY.filter(p => p.technique && p.technique !== 'standard').length;
     const promptsWithVars = PROMPT_LIBRARY.filter(p => p.variables && p.variables.length > 0).length;
 
+    const allAgents = [
+        ...Object.values(AGENTS).map(a => ({ ...a, isPreset: true })),
+        ...customAgents.map(a => ({ ...a, isPreset: false }))
+    ];
+
     return (
         <div className="flex flex-col gap-12">
+            {/* Agent Selection Row */}
+            <div className="space-y-6">
+                <div className="flex justify-between items-end">
+                    <div>
+                        <h2 className="text-xl font-black text-white mb-1 uppercase tracking-tight">Choose Your Expert</h2>
+                        <p className="text-slate-500 text-xs">Switch between specialized agents for different tasks.</p>
+                    </div>
+                    <button
+                        onClick={() => setShowBuilder(true)}
+                        className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group"
+                    >
+                        <span className="text-lg group-hover:rotate-90 transition-transform duration-300">+</span> Create Custom Agent
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
+                    {allAgents.map(agent => (
+                        <AgentCard
+                            key={agent.id}
+                            agent={agent}
+                            isSelected={selectedAgentId === agent.id}
+                            onSelect={setSelectedAgentId}
+                        />
+                    ))}
+                </div>
+            </div>
+
             {/* Main Chat Interface */}
             <div id="expert-chat" className="w-full scroll-mt-24">
-                <ExpertChat initialPrompt={selectedPrompt} onPromptUsed={() => setSelectedPrompt(null)} />
+                <ExpertChat
+                    initialPrompt={selectedPrompt}
+                    onPromptUsed={() => setSelectedPrompt(null)}
+                    selectedAgentId={selectedAgentId}
+                    agents={allAgents}
+                />
             </div>
 
             {/* Prompt Library and Support Info below */}
@@ -78,7 +159,7 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                     {/* Stats */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
-                            <div className="text-2xl font-black text-white mb-0.5">{Object.keys(AGENTS).length}</div>
+                            <div className="text-2xl font-black text-white mb-0.5">{allAgents.length}</div>
                             <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Experts</div>
                         </div>
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
@@ -148,33 +229,16 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                             </div>
                         </div>
                     </div>
-
-                    {/* Workspace Info */}
-                    <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20">
-                        <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-                            <span>💡</span> Pro Tips
-                        </h3>
-                        <ul className="space-y-2 text-xs text-slate-400 leading-relaxed">
-                            <li className="flex items-start gap-2">
-                                <span className="text-emerald-400 mt-0.5">✓</span>
-                                Use <strong className="text-white">GPT-4o</strong> for complex logic and reasoning
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-emerald-400 mt-0.5">✓</span>
-                                Switch to <strong className="text-white">Claude 3.5</strong> for nuanced code
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-emerald-400 mt-0.5">✓</span>
-                                Click prompts to auto-fill the chat input
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-emerald-400 mt-0.5">✓</span>
-                                Export your chat history to Markdown
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            {showBuilder && (
+                <AgentBuilder
+                    onSave={handleCreateAgent}
+                    onCancel={() => setShowBuilder(false)}
+                />
+            )}
         </div>
     );
 };

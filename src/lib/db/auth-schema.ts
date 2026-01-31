@@ -53,3 +53,20 @@ export const verificationTokens = sqliteTable(
         compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
     })
 );
+
+export const agents = sqliteTable("agent", {
+    id: text("id").notNull().primaryKey(),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    icon: text("icon"),
+    description: text("description"),
+    systemPrompt: text("systemPrompt").notNull(),
+    specialties: text("specialties"), // Store as JSON string
+    model: text("model").default("gpt-4o"),
+    tools: text("tools"), // Store as JSON string
+    isPublic: integer("isPublic").default(0), // 0 for false, 1 for true
+    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
+    updatedAt: integer("updatedAt", { mode: "timestamp_ms" }).notNull(),
+});

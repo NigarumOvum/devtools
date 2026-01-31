@@ -207,9 +207,17 @@ export const AuthButton: React.FC<{ session: any }> = ({ session }) => {
                             </span>
                         </button>
                         {!isRegister && (
-                            <a href="/auth/forgot-password" onClick={() => setShowEmailForm(false)} className="text-xs font-semibold text-slate-600 hover:text-slate-400 transition-colors">
-                                Reset forgotten password
-                            </a>
+                            <div className="flex flex-col gap-4">
+                                <a href="/auth/forgot-password"
+                                    onClick={() => setShowEmailForm(false)}
+                                    className="text-xs font-bold text-blue-500/80 hover:text-blue-400 transition-colors py-2"
+                                >
+                                    Forgot your password?
+                                </a>
+                                <p className="text-[10px] text-slate-600">
+                                    Protected by enterprise-grade security
+                                </p>
+                            </div>
                         )}
                     </div>
                 </div>

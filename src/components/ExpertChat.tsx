@@ -13,6 +13,8 @@ const PROVIDERS = [
 interface ExpertChatProps {
     initialPrompt?: string | null;
     onPromptUsed?: () => void;
+    selectedAgentId?: string;
+    agents?: any[];
 }
 
 interface ChatStats {
@@ -22,16 +24,31 @@ interface ChatStats {
 
 const CHAT_HISTORY_KEY = 'devtools_chat_history';
 
-export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptUsed }) => {
+export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptUsed, selectedAgentId: propAgentId, agents = [] }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
-    const [selectedAgent, setSelectedAgent] = useState('senior_se');
+    const [selectedAgent, setSelectedAgent] = useState(propAgentId || 'senior_se');
     const [provider, setProvider] = useState<AIProvider>('openai');
     const [loading, setLoading] = useState(false);
     const [streamingText, setStreamingText] = useState('');
     const [stats, setStats] = useState<ChatStats>({ messageCount: 0, tokensEstimate: 0 });
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Sync prop selectedAgentId with state
+    useEffect(() => {
+        if (propAgentId) {
+            setSelectedAgent(propAgentId);
+        }
+    }, [propAgentId]);
+
+    const allAvailableAgents = [
+        ...Object.values(AGENTS).map(a => ({ ...a, isPreset: true })),
+        ...agents.map(a => ({ ...a, isPreset: false }))
+    ];
+
+    const currentAgent = allAvailableAgents.find(a => a.id === selectedAgent) || AGENTS['senior_se'];
+    const currentProvider = PROVIDERS.find(p => p.id === provider);
 
     // Load chat history
     useEffect(() => {
@@ -85,34 +102,36 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
         setLoading(true);
         setStreamingText('');
 
-        const userTokens = estimateTokens(input);
-
         try {
-            const response = await fetch('/api/ai', {
+            const isCustomAgent = agents.find(a => a.id === selectedAgent && !a.isPreset);
+            const endpoint = isCustomAgent ? '/api/agents/run' : '/api/ai';
+            const body = isCustomAgent
+                ? { agentId: selectedAgent, message: input }
+                : { provider, roleId: selectedAgent, messages: newMessages };
+
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    provider,
-                    roleId: selectedAgent,
-                    messages: newMessages,
-                }),
+                body: JSON.stringify(body),
             });
 
+            if (!response.ok) throw new Error('Failed to get response');
             const data = await response.json();
-            if (data.error) throw new Error(data.error);
 
-            const assistantTokens = estimateTokens(data.response);
-            setMessages([...newMessages, { role: 'assistant', content: data.response }]);
+            const assistantContent = isCustomAgent ? data.response : data.response;
+            if (!assistantContent) throw new Error('Empty response');
+
+            const assistantMessage: ChatMessage = { role: 'assistant', content: assistantContent };
+            setMessages(prev => [...prev, assistantMessage]);
             setStats(prev => ({
                 messageCount: prev.messageCount + 2,
-                tokensEstimate: prev.tokensEstimate + userTokens + assistantTokens,
+                tokensEstimate: prev.tokensEstimate + estimateTokens(input) + estimateTokens(assistantContent)
             }));
         } catch (error: any) {
             console.error('Chat Error:', error);
-            setMessages([...newMessages, { role: 'assistant', content: `⚠️ Error: ${error.message}` }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ Error: ${error.message || 'Unknown error'}` }]);
         } finally {
             setLoading(false);
-            setStreamingText('');
         }
     };
 
@@ -123,18 +142,15 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
     };
 
     const exportChat = () => {
-        const agent = AGENTS[selectedAgent];
-        const providerInfo = PROVIDERS.find(p => p.id === provider);
-
         let markdown = `# Chat Export\n\n`;
-        markdown += `**Agent:** ${agent?.name || selectedAgent}\n`;
-        markdown += `**Model:** ${providerInfo?.name || provider}\n`;
+        markdown += `**Agent:** ${currentAgent?.name || selectedAgent}\n`;
+        markdown += `**Model:** ${currentProvider?.name || provider}\n`;
         markdown += `**Date:** ${new Date().toISOString()}\n`;
         markdown += `**Messages:** ${stats.messageCount}\n`;
         markdown += `**Estimated Tokens:** ~${stats.tokensEstimate.toLocaleString()}\n\n---\n\n`;
 
         messages.forEach((m) => {
-            const role = m.role === 'user' ? '**You:**' : `**${agent?.name}:**`;
+            const role = m.role === 'user' ? '**You:**' : `**${currentAgent?.name}:**`;
             markdown += `${role}\n\n${m.content}\n\n---\n\n`;
         });
 
@@ -149,10 +165,6 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
         URL.revokeObjectURL(url);
     };
 
-    const currentAgent = AGENTS[selectedAgent];
-    const currentProvider = PROVIDERS.find(p => p.id === provider);
-
-    // Markdown components with syntax highlighting
     const markdownComponents = {
         code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
@@ -194,7 +206,6 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
             {/* Header */}
             <div className="p-5 bg-slate-800/50 border-b border-slate-700/50">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    {/* Agent Selector */}
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xl shadow-lg ring-2 ring-blue-400/20">
                             {currentAgent?.icon || '🤖'}
@@ -206,7 +217,7 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
                                 className="bg-transparent text-white text-lg font-bold outline-none cursor-pointer hover:text-blue-400 transition-colors appearance-none pr-6"
                                 style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', backgroundSize: '18px' }}
                             >
-                                {Object.values(AGENTS).map(agent => (
+                                {allAvailableAgents.map(agent => (
                                     <option key={agent.id} value={agent.id} className="bg-slate-900 text-white">{agent.name}</option>
                                 ))}
                             </select>
@@ -214,7 +225,6 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
                         </div>
                     </div>
 
-                    {/* Provider & Actions */}
                     <div className="flex items-center gap-2">
                         <div className="flex bg-slate-800 rounded-2xl p-1 border border-slate-700">
                             {PROVIDERS.map((p) => (
@@ -253,7 +263,6 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
                     </div>
                 </div>
 
-                {/* Stats Bar */}
                 {stats.messageCount > 0 && (
                     <div className="flex gap-4 mt-3 pt-3 border-t border-slate-700/50 text-[10px] text-slate-500 font-medium uppercase tracking-widest">
                         <span>💬 {stats.messageCount} messages</span>
