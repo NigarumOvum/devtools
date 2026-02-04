@@ -1,5 +1,5 @@
 {
-  "name": "@example/basics",
+  "name": "dev-genai-multi-tools",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -53,6 +53,6 @@
     "drizzle-kit": "^0.31.8"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   }
 }
