@@ -1,4 +1,6 @@
 ---
+import Analytics from "@vercel/analytics/astro";
+
 interface Props {
 	title: string;
 }
@@ -10,23 +12,39 @@ const { title } = Astro.props;
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Professional developer tools for frontend and backend developers" />
+		<meta
+			name="description"
+			content="Professional developer tools for frontend and backend developers"
+		/>
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+			rel="stylesheet"
+		/>
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="transition-colors duration-300 bg-slate-50 dark:bg-slate-950 min-h-screen">
+	<body
+		class="transition-colors duration-300 bg-slate-50 dark:bg-slate-950 min-h-screen"
+	>
 		<div class="fixed inset-0 overflow-hidden pointer-events-none">
-			<div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-accent-500/20 to-primary-500/20 rounded-full blur-3xl animate-float"></div>
-			<div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-primary-500/20 to-accent-500/20 rounded-full blur-3xl animate-float" style="animation-delay: 3s;"></div>
+			<div
+				class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-accent-500/20 to-primary-500/20 rounded-full blur-3xl animate-float"
+			>
+			</div>
+			<div
+				class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-primary-500/20 to-accent-500/20 rounded-full blur-3xl animate-float"
+				style="animation-delay: 3s;"
+			>
+			</div>
 		</div>
 		<div class="relative z-10">
 			<slot />
 		</div>
+		<Analytics />
 	</body>
 </html>
 <style is:global>
@@ -40,13 +58,13 @@ const { title } = Astro.props;
 			rgb(var(--accent)) 100%
 		);
 	}
-	
+
 	* {
 		box-sizing: border-box;
 	}
 
 	html {
-		font-family: 'Inter', system-ui, sans-serif;
+		font-family: "Inter", system-ui, sans-serif;
 		scroll-behavior: smooth;
 	}
 
@@ -54,8 +72,9 @@ const { title } = Astro.props;
 		background-attachment: fixed;
 	}
 
-	code, pre {
-		font-family: 'JetBrains Mono', 'Fira Code', monospace;
+	code,
+	pre {
+		font-family: "JetBrains Mono", "Fira Code", monospace;
 	}
 
 	/* Glassmorphism Card */
@@ -89,7 +108,11 @@ const { title } = Astro.props;
 
 	/* Gradient Text */
 	.gradient-text {
-		background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--primary)));
+		background: linear-gradient(
+			135deg,
+			rgb(var(--accent)),
+			rgb(var(--primary))
+		);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
@@ -158,21 +181,24 @@ const { title } = Astro.props;
 </style>
 
 <script>
-  const theme = (() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
-    }
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    return 'light';
-  })();
+	const theme = (() => {
+		if (
+			typeof localStorage !== "undefined" &&
+			localStorage.getItem("theme")
+		) {
+			return localStorage.getItem("theme");
+		}
+		if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+			return "dark";
+		}
+		return "light";
+	})();
 
-  if (theme === 'light') {
-    document.documentElement.classList.remove('dark');
-  } else {
-    document.documentElement.classList.add('dark');
-  }
+	if (theme === "light") {
+		document.documentElement.classList.remove("dark");
+	} else {
+		document.documentElement.classList.add("dark");
+	}
 
-  window.localStorage.setItem('theme', theme);
+	window.localStorage.setItem("theme", theme);
 </script>
