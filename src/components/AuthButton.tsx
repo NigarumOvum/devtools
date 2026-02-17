@@ -113,12 +113,17 @@ export const AuthButton: React.FC<{ session: any; mode?: 'login' | 'register'; l
 
                 // If we get a response back, it means there was an error
                 if (res) {
-                    setError(t('auth.invalidCredentials'));
+                    console.error("Sign-in error response:", res);
+                    // Use the actual error message if active, otherwise fallback to generic
+                    // Note: detailed errors might be "CredentialsSignin", or "Configuration"
+                    // @ts-ignore
+                    setError(res.error ? `Error: ${res.error}` : t('auth.invalidCredentials'));
                     setLoading(false);
                 }
                 // If res is undefined, auth-astro already redirected (success)
             } catch (err: any) {
-                setError(t('auth.invalidCredentials'));
+                console.error("Sign-in exception:", err);
+                setError(err.message || t('auth.invalidCredentials'));
                 setLoading(false);
             }
         }
