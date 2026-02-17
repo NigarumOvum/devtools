@@ -18,11 +18,21 @@ export default defineConfig({
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
+                console.log("[Auth] Attempting login for email:", credentials.email);
                 const [user] = await db.select().from(users).where(eq(users.email, credentials.email as string)).limit(1);
 
-                if (!user || !user.password) return null;
+                if (!user) {
+                    console.error("[Auth] User not found in database");
+                    return null;
+                }
+
+                if (!user.password) {
+                    console.error("[Auth] User found but has NO password set (likely created by seed script)");
+                    return null;
+                }
 
                 const isPasswordValid = await bcrypt.compare(credentials.password as string, user.password);
+                console.log("[Auth] Password valid:", isPasswordValid);
 
                 if (!isPasswordValid) return null;
 
