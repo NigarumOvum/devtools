@@ -4,6 +4,7 @@ import { db } from '../../../lib/db';
 import { agents } from '../../../lib/db/auth-schema';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { AGENTS } from '../../../lib/ai/agents';
 
 export const GET: APIRoute = async ({ request }) => {
     const session = await getSession(request);
@@ -12,7 +13,36 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     try {
-        const userAgents = await db.select().from(agents).where(eq(agents.userId, session.user.id));
+        // Fetch existing agents for the user
+        let userAgents = await db.select().from(agents).where(eq(agents.userId, session.user.id));
+        
+        // Check for missing default agents and seed them
+        const existingAgentIds = new Set(userAgents.map(a => a.id));
+        const defaultAgents = Object.values(AGENTS);
+        const agentsToInsert = defaultAgents.filter(a => !existingAgentIds.has(a.id));
+        
+        if (agentsToInsert.length > 0) {
+            const newAgents = agentsToInsert.map(agent => ({
+                id: agent.id,
+                userId: session.user.id!,
+                name: agent.name,
+                icon: agent.icon,
+                description: agent.description,
+                systemPrompt: agent.systemPrompt,
+                specialties: JSON.stringify(agent.specialties),
+                model: 'gpt-4o',
+                tools: JSON.stringify([]),
+                isPublic: 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }));
+            
+            await db.insert(agents).values(newAgents);
+            
+            // Re-fetch to get everything (or just push to array, but re-fetch is safer for order/consistency)
+            userAgents = await db.select().from(agents).where(eq(agents.userId, session.user.id));
+        }
+
         return new Response(JSON.stringify(userAgents), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

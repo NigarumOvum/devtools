@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 interface TypeScriptInterface {
     name: string;
@@ -102,7 +103,9 @@ export default function JsonToTypescript() {
             }
             setError('');
         } catch (e) {
-            setError((e as Error).message);
+            const errorMsg = (e as Error).message;
+            setError(errorMsg);
+            toast.error('Invalid JSON: ' + errorMsg);
             setOutput('');
         }
     }, [json, rootName, generateInterface]);
@@ -112,6 +115,7 @@ export default function JsonToTypescript() {
             await navigator.clipboard.writeText(output);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+            toast.success('TypeScript definitions copied to clipboard!');
         }
     }, [output]);
 

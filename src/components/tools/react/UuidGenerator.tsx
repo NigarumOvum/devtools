@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 export default function UuidGenerator() {
     const [uuids, setUuids] = useState<string[]>([]);
@@ -24,18 +25,21 @@ export default function UuidGenerator() {
         setUuids(newUuids);
         setCopied(null);
         setCopiedAll(false);
+        toast.success(`Generated ${count} UUID${count > 1 ? 's' : ''}`);
     }, [count]);
 
     const copyToClipboard = useCallback(async (uuid: string, index: number) => {
         await navigator.clipboard.writeText(uuid);
         setCopied(index);
         setTimeout(() => setCopied(null), 2000);
+        toast.success('UUID copied to clipboard!');
     }, []);
 
     const copyAll = useCallback(async () => {
         await navigator.clipboard.writeText(uuids.join('\n'));
         setCopiedAll(true);
         setTimeout(() => setCopiedAll(false), 2000);
+        toast.success('All UUIDs copied to clipboard!');
     }, [uuids]);
 
     return (

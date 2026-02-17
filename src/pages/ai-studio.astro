@@ -1,109 +1,91 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Navigation from "../components/Navigation.astro";
-import Sidebar from "../components/Sidebar.astro";
-import { getLangFromUrl, useTranslations } from "../utils/i18n";
 import { getSession } from "auth-astro/server";
 import { StudioSection } from "../components/StudioSection";
+import { getLangFromUrl, useTranslations } from "../utils/i18n";
 
+const session = await getSession(Astro.request);
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
-const session = await getSession(Astro.request);
 ---
 
-<Layout title="AI Expert Multi-Agent Studio | DevTools Pro">
-    <Navigation />
-    <Sidebar />
-
+<Layout title={t("aiStudio.pageTitle")}>
     <main class="min-h-screen pt-20 md:pl-72 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Breadcrumbs / Navigation -->
-            <nav
-                class="flex items-center gap-2 text-sm text-slate-500 mb-8 overflow-x-auto whitespace-nowrap pb-2"
-            >
-                <a href="/" class="hover:text-blue-500 transition-colors"
-                    >Home</a
-                >
+            <!-- Breadcrumbs -->
+            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-8">
+                <a href="/" class="hover:text-blue-500 transition-colors">
+                    {t("aiStudio.breadcrumbHome")}
+                </a>
                 <span>/</span>
-                <span class="text-slate-900 dark:text-white font-semibold"
-                    >AI Multi-Agent Studio</span
-                >
+                <span class="text-slate-900 dark:text-white font-semibold">
+                    {t("aiStudio.breadcrumbStudio")}
+                </span>
             </nav>
 
             <!-- Page Header -->
-            <div class="mb-12">
-                <div class="flex items-center gap-4 mb-4">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg ring-4 ring-blue-500/10"
-                    >
-                        🤖
-                    </div>
-                    <h1
-                        class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight"
-                    >
-                        AI Expert <span class="text-blue-500"
-                            >Multi-Agent Studio</span
-                        >
-                    </h1>
-                </div>
-                <p
-                    class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed"
+            <div class="mb-10 animate-fade-in">
+                <h1
+                    class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight"
                 >
-                    Collaborate with a team of specialized AI agents. Toggle
-                    between OpenAI for reasoning, Claude for coding, and Gemini
-                    for multi-modal analysis.
+                    {t("aiStudio.title")}
+                    <span class="gradient-text"
+                        >{t("aiStudio.titleHighlight")}</span
+                    >
+                </h1>
+                <p
+                    class="text-xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed"
+                >
+                    {t("aiStudio.description")}
                 </p>
             </div>
 
-            <!-- Studio Interface -->
-            <StudioSection client:load initialSession={session} />
-
-            <!-- Footer Info -->
+            <!-- Features Grid -->
             <div
-                class="mt-20 pt-12 border-t border-slate-200 dark:border-slate-800"
+                class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-slide-up"
             >
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div
-                        class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+                <div
+                    class="p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10"
+                >
+                    <div class="text-2xl mb-3">🔒</div>
+                    <h3 class="font-bold text-slate-900 dark:text-white mb-2">
+                        {t("aiStudio.privacyTitle")}
+                    </h3>
+                    <p
+                        class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
                     >
-                        <h3
-                            class="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"
-                        >
-                            <span class="text-blue-500">🔒</span> Privacy First
-                        </h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-400">
-                            All chats are stored locally in your browser. We
-                            never use your data to train models.
-                        </p>
-                    </div>
-                    <div
-                        class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+                        {t("aiStudio.privacyDesc")}
+                    </p>
+                </div>
+                <div
+                    class="p-6 rounded-3xl bg-purple-500/5 border border-purple-500/10"
+                >
+                    <div class="text-2xl mb-3">⚡</div>
+                    <h3 class="font-bold text-slate-900 dark:text-white mb-2">
+                        {t("aiStudio.performanceTitle")}
+                    </h3>
+                    <p
+                        class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
                     >
-                        <h3
-                            class="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"
-                        >
-                            <span class="text-purple-500">⚡</span> High Performance
-                        </h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-400">
-                            Optimized streaming responses and specialized system
-                            prompts for developer workflows.
-                        </p>
-                    </div>
-                    <div
-                        class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+                        {t("aiStudio.performanceDesc")}
+                    </p>
+                </div>
+                <div
+                    class="p-6 rounded-3xl bg-indigo-500/5 border border-indigo-500/10"
+                >
+                    <div class="text-2xl mb-3">🧠</div>
+                    <h3 class="font-bold text-slate-900 dark:text-white mb-2">
+                        {t("aiStudio.multiModelTitle")}
+                    </h3>
+                    <p
+                        class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
                     >
-                        <h3
-                            class="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"
-                        >
-                            <span class="text-emerald-500">🧠</span> Multi-Model
-                        </h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-400">
-                            Seamlessly switch context between different
-                            providers without losing your chat history.
-                        </p>
-                    </div>
+                        {t("aiStudio.multiModelDesc")}
+                    </p>
                 </div>
             </div>
+
+            <StudioSection client:load initialSession={session} lang={lang} />
         </div>
     </main>
 </Layout>

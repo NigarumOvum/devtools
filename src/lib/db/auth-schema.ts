@@ -8,6 +8,20 @@ export const users = sqliteTable("user", {
     password: text("password"),
     emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
     image: text("image"),
+    role: text("role").default("user"),
+});
+
+export const prompts = sqliteTable("prompt", {
+    id: text("id").notNull().primaryKey(),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    category: text("category").notNull(),
+    template: text("template").notNull(),
+    icon: text("icon"),
+    tags: text("tags"), // Store as JSON string
+    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
 });
 
 export const accounts = sqliteTable(

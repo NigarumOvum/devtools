@@ -7,62 +7,60 @@ const t = useTranslations(lang);
 
 const toolCategories = [
   {
-    role: "AI Expert Studio",
-    icon: "🤖",
-    tools: [
-      { name: "Chat with Experts", href: "/ai-studio", icon: "💬" },
-      { name: "Manage AI Agents", href: "/agents", icon: "👨‍✈️" },
-      { name: "Prompt Library", href: "/ai-studio", icon: "📚" },
-      { name: "Account Settings", href: "/account", icon: "⚙️" },
-    ],
-  },
-  {
     name: t("category.formatters"),
     icon: "✨",
     tools: [
-      { name: t("tools.jsonFormatter"), href: "#json-formatter", icon: "📋" },
-      { name: t("tools.base64"), href: "#base64-tool", icon: "🔐" },
-      { name: t("tools.cssFormatter"), href: "#css-formatter", icon: "🎨" },
-      { name: t("tools.sqlFormatter"), href: "#sql-formatter", icon: "🗃️" },
+      { name: t("tools.jsonFormatter"), href: "/tools/json-formatter", icon: "📋" },
+      { name: t("tools.base64"), href: "/tools/base64-tool", icon: "🔐" },
+      { name: t("tools.cssFormatter"), href: "/tools/css-formatter", icon: "🎨" },
+      { name: t("tools.sqlFormatter"), href: "/tools/sql-formatter", icon: "🗃️" },
+      { name: "JS Minifier", href: "/tools/js-minifier", icon: "📦" },
+      { name: "CSS Bridge", href: "/tools/css-converter", icon: "🌉" },
     ],
   },
   {
     name: t("category.generators"),
     icon: "⚡",
     tools: [
-      { name: t("tools.uuidGenerator"), href: "#uuid-generator", icon: "🎲" },
-      { name: t("tools.hashGenerator"), href: "#hash-generator", icon: "🔒" },
-      { name: t("tools.loremGenerator"), href: "#lorem-generator", icon: "📝" },
+      { name: t("tools.uuidGenerator"), href: "/tools/uuid-generator", icon: "🎲" },
+      { name: t("tools.hashGenerator"), href: "/tools/hash-generator", icon: "🔒" },
+      { name: t("tools.loremGenerator"), href: "/tools/lorem-generator", icon: "📝" },
       {
         name: t("tools.passwordGenerator"),
-        href: "#password-generator",
+        href: "/tools/password-generator",
         icon: "🔑",
       },
-      { name: t("tools.qrGenerator"), href: "#qr-generator", icon: "📱" },
+      { name: t("tools.qrGenerator"), href: "/tools/qr-generator", icon: "📱" },
+      { name: "PWA Manifest", href: "/tools/pwa-manifest", icon: "📱" },
     ],
   },
   {
     name: t("category.converters"),
     icon: "🔄",
     tools: [
-      { name: t("tools.colorConverter"), href: "#color-converter", icon: "🌈" },
+      { name: t("tools.colorConverter"), href: "/tools/color-converter", icon: "🌈" },
       {
         name: t("tools.timestampConverter"),
-        href: "#timestamp-converter",
+        href: "/tools/timestamp-converter",
         icon: "⏰",
       },
-      { name: t("tools.urlCodec"), href: "#url-codec", icon: "🔗" },
-      { name: t("tools.htmlEntity"), href: "#html-entity-encoder", icon: "🔤" },
-      { name: t("tools.jsonToTs"), href: "#json-to-typescript", icon: "🔷" },
+      { name: t("tools.urlCodec"), href: "/tools/url-codec", icon: "🔗" },
+      { name: t("tools.htmlEntity"), href: "/tools/html-entity-encoder", icon: "🔤" },
+      { name: t("tools.jsonToTs"), href: "/tools/json-to-typescript", icon: "🔷" },
+      { name: "HTML Bridge", href: "/tools/html-converter", icon: "🌉" },
     ],
   },
   {
     name: t("category.validators"),
     icon: "✅",
     tools: [
-      { name: t("tools.regexTester"), href: "#regex-tester", icon: "🔍" },
-      { name: t("tools.jwtDecoder"), href: "#jwt-decoder", icon: "🎫" },
-      { name: t("tools.cronParser"), href: "#cron-parser", icon: "⏱️" },
+      { name: t("tools.regexTester"), href: "/tools/regex-tester", icon: "🔍" },
+      { name: "AutoRegex (AI)", href: "/tools/auto-regex", icon: "🤖" },
+      { name: "A11y Lab", href: "/tools/a11y-lab", icon: "♿" },
+      { name: "HTTP Studio", href: "/tools/http-client", icon: "🌐" },
+      { name: "Performance Lab", href: "/tools/performance-lab", icon: "🚀" },
+      { name: t("tools.jwtDecoder"), href: "/tools/jwt-decoder", icon: "🎫" },
+      { name: t("tools.cronParser"), href: "/tools/cron-parser", icon: "⏱️" },
     ],
   },
   {
@@ -71,13 +69,16 @@ const toolCategories = [
     tools: [
       {
         name: t("tools.markdownPreview"),
-        href: "#markdown-preview",
+        href: "/tools/markdown-preview",
         icon: "📄",
       },
-      { name: t("tools.diffChecker"), href: "#diff-checker", icon: "📊" },
+      { name: t("tools.diffChecker"), href: "/tools/diff-checker", icon: "📊" },
+      { name: "HTML Lab", href: "/tools/html-editor", icon: "🧪" },
+      { name: "Layout Lab", href: "/tools/layout-generator", icon: "▢" },
     ],
   },
 ];
+const currentPath = Astro.url.pathname;
 ---
 
 <aside
@@ -91,26 +92,45 @@ const toolCategories = [
         <span class="text-xl">🧰</span>
         {t("sidebar.devTools")}
       </h2>
-      <ThemeToggle />
     </div>
 
-    <div class="space-y-4">
+    <div class="space-y-4" id="sidebar-categories">
       {
-        toolCategories.map((category) => (
-          <div class="category-group">
-            <div class="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              <span>{category.icon}</span>
-              <span>{category.name}</span>
+        toolCategories.map((category, idx) => (
+          <div class="category-group" data-category-id={idx}>
+            <button
+              class="w-full flex items-center justify-between px-3 py-2 text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-colors group"
+              aria-expanded="false"
+            >
+              <div class="flex items-center gap-2">
+                <span>{category.icon}</span>
+                <span>{category.name}</span>
             </div>
-            <ul class="space-y-1">
+            <svg
+                class="w-4 h-4 transition-transform duration-300 transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <ul class="space-y-1 mt-1 overflow-hidden transition-all duration-300 max-h-0 opacity-0 category-content">
               {category.tools.map((tool) => (
                 <li>
                   <a
                     href={tool.href}
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 
-                         hover:bg-gradient-to-r hover:from-accent-500/10 hover:to-primary-500/10 
-                         hover:text-accent-600 dark:hover:text-accent-400 
-                         transition-all duration-200 group"
+                    class:list={[
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group",
+                      currentPath === tool.href
+                        ? "bg-gradient-to-r from-accent-500/10 to-primary-500/10 text-accent-600 dark:text-accent-400"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-gradient-to-r hover:from-accent-500/10 hover:to-primary-500/10 hover:text-accent-600 dark:hover:text-accent-400",
+                    ]}
                   >
                     <span class="text-lg group-hover:scale-110 transition-transform duration-200">
                       {tool.icon}
@@ -124,19 +144,63 @@ const toolCategories = [
         ))
       }
     </div>
-
-    <div
-      class="mt-8 p-4 rounded-xl bg-gradient-to-br from-accent-500/10 to-primary-500/10 border border-accent-500/20"
-    >
-      <p
-        class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
-      >
-        <span>💡</span>
-        <span>{t("sidebar.tip")}</span>
-      </p>
-    </div>
   </div>
 </aside>
+
+<script>
+  function setupSidebar() {
+    const categories = document.querySelectorAll(".category-group");
+    const storageKey = "devtools-sidebar-state";
+
+    // Load saved state
+    const savedState = JSON.parse(localStorage.getItem(storageKey) || "{}");
+
+    categories.forEach((group, idx) => {
+      const btn = group.querySelector("button");
+      const content = group.querySelector(".category-content") as HTMLElement;
+      const arrow = btn?.querySelector("svg");
+      const categoryId =
+        group.getAttribute("data-category-id") || idx.toString();
+
+      const isOpen = savedState[categoryId] === true;
+
+      const updateUI = (open: boolean) => {
+        if (open) {
+          content.style.maxHeight = content.scrollHeight + "px";
+          content.style.opacity = "1";
+          arrow?.classList.add("rotate-180");
+          btn?.setAttribute("aria-expanded", "true");
+        } else {
+          content.style.maxHeight = "0";
+          content.style.opacity = "0";
+          arrow?.classList.remove("rotate-180");
+          btn?.setAttribute("aria-expanded", "false");
+        }
+      };
+
+      // Initial state
+      updateUI(isOpen);
+
+      btn?.addEventListener("click", () => {
+        const currentlyOpen = btn.getAttribute("aria-expanded") === "true";
+        const newState = !currentlyOpen;
+
+        updateUI(newState);
+
+        // Save state
+        const currentState = JSON.parse(
+          localStorage.getItem(storageKey) || "{}",
+        );
+        currentState[categoryId] = newState;
+        localStorage.setItem(storageKey, JSON.stringify(currentState));
+      });
+    });
+  }
+
+  setupSidebar();
+  // Support Astro transitions
+  document.addEventListener("astro:after-swap", setupSidebar);
+</script>
 
 <style>
   aside::-webkit-scrollbar {
@@ -146,5 +210,11 @@ const toolCategories = [
   aside::-webkit-scrollbar-thumb {
     background: rgba(168, 85, 247, 0.2);
     border-radius: 2px;
+  }
+
+  .category-content {
+    transition:
+      max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s ease-in-out;
   }
 </style>

@@ -1,0 +1,62 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { ReactToolLoader, getToolMeta } from "../../components/tools";
+
+import JwtDecoder from "../../components/tools/vue/JwtDecoder.vue";
+import TimestampConverter from "../../components/tools/vue/TimestampConverter.vue";
+import UrlCodec from "../../components/tools/vue/UrlCodec.vue";
+import CssFormatter from "../../components/tools/vue/CssFormatter.vue";
+import HtmlEntityEncoder from "../../components/tools/vue/HtmlEntityEncoder.vue";
+import SqlFormatter from "../../components/tools/vue/SqlFormatter.vue";
+
+import HashGenerator from "../../components/tools/svelte/HashGenerator.svelte";
+import ColorConverter from "../../components/tools/svelte/ColorConverter.svelte";
+import LoremGenerator from "../../components/tools/svelte/LoremGenerator.svelte";
+import CronParser from "../../components/tools/svelte/CronParser.svelte";
+import PasswordGenerator from "../../components/tools/svelte/PasswordGenerator.svelte";
+
+const { tool } = Astro.params;
+const meta = getToolMeta(tool);
+
+if (!meta) {
+  return Astro.redirect("/404");
+}
+
+---
+
+<Layout title={meta.title}>
+  <main class="md:pl-72 min-h-screen pt-20 pb-12 px-4 md:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="glass-card p-6 md:p-8 rounded-[2rem] animate-fade-in">
+        <h1 class="text-3xl font-bold mb-8 gradient-text">{meta.title}</h1>
+        <div class="tool-content">
+          {meta.type === "react" ? (
+            <ReactToolLoader client:load toolId={tool} />
+          ) : tool === "css-formatter" ? (
+            <CssFormatter client:load />
+          ) : tool === "sql-formatter" ? (
+            <SqlFormatter client:load />
+          ) : tool === "timestamp-converter" ? (
+            <TimestampConverter client:load />
+          ) : tool === "url-codec" ? (
+            <UrlCodec client:load />
+          ) : tool === "html-entity-encoder" ? (
+            <HtmlEntityEncoder client:load />
+          ) : tool === "jwt-decoder" ? (
+            <JwtDecoder client:load />
+          ) : tool === "hash-generator" ? (
+            <HashGenerator client:load />
+          ) : tool === "lorem-generator" ? (
+            <LoremGenerator client:load />
+          ) : tool === "password-generator" ? (
+            <PasswordGenerator client:load />
+          ) : tool === "cron-parser" ? (
+            <CronParser client:load />
+          ) : tool === "color-converter" ? (
+            <ColorConverter client:load />
+          ) : null}
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>

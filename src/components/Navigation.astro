@@ -11,10 +11,9 @@ const session = await getSession(Astro.request);
 
 const navItems = [
   { name: t("nav.home"), href: "/" },
-  { name: "🤖 AI Studio", href: "/ai-studio" },
-  { name: "👨‍✈️ Agents", href: "/agents" },
-  { name: t("nav.tools"), href: "/#tools" },
-  { name: t("nav.about"), href: "/#about" },
+  { name: t("nav.aiStudio"), href: "/ai-studio" },
+  { name: t("nav.agents"), href: "/agents" },
+  { name: t("nav.prompts"), href: "/prompts" },
 ];
 ---
 
@@ -59,24 +58,54 @@ const navItems = [
         <div class="hidden md:block h-6 w-px bg-slate-200 dark:bg-slate-700">
         </div>
 
-        <div class="hidden md:block">
-          <AuthButton client:load session={session} />
+        <div class="hidden md:flex items-center gap-3">
+          {
+            !session ? (
+              <>
+                <AuthButton
+                  client:load
+                  session={session}
+                  mode="login"
+                  lang={lang}
+                />
+                <AuthButton
+                  client:load
+                  session={session}
+                  mode="register"
+                  lang={lang}
+                />
+              </>
+            ) : (
+              <AuthButton client:load session={session} lang={lang} />
+            )
+          }
         </div>
 
         {
           session?.user && (
-            <a
-              href="/account"
-              class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-              title="Account Settings"
-            >
-              <span>⚙️</span>
-              <span class="hidden lg:inline">Account</span>
-            </a>
+            <div class="flex items-center gap-2">
+              <a
+                href="/account"
+                class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                title={t("common.account")}
+              >
+                <span>⚙️</span>
+                <span class="hidden lg:inline">{t("common.account")}</span>
+              </a>
+              {(session.user as any).role === "admin" && (
+                <span class="hidden md:inline-flex items-center px-2 py-1 rounded-md bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                  {t("common.fullAccess")}
+                </span>
+              )}
+            </div>
           )
         }
 
         <LanguageSelector />
+
+        <div class="hidden md:block">
+          <ThemeToggle />
+        </div>
 
         <div class="md:hidden">
           <ThemeToggle />
@@ -121,8 +150,29 @@ const navItems = [
           </a>
         ))
       }
-      <div class="pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
-        <AuthButton client:load session={session} />
+      <div
+        class="pt-4 border-t border-slate-200/50 dark:border-slate-700/50 flex flex-col gap-3"
+      >
+        {
+          !session ? (
+            <>
+              <AuthButton
+                client:load
+                session={session}
+                mode="login"
+                lang={lang}
+              />
+              <AuthButton
+                client:load
+                session={session}
+                mode="register"
+                lang={lang}
+              />
+            </>
+          ) : (
+            <AuthButton client:load session={session} lang={lang} />
+          )
+        }
       </div>
     </div>
   </div>

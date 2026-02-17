@@ -1,11 +1,15 @@
 ---
 import Analytics from "@vercel/analytics/astro";
 
+import Navigation from "../components/Navigation.astro";
+import { getSession } from "auth-astro/server";
+
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props;
+const session = await getSession(Astro.request);
 ---
 
 <!doctype html>
@@ -49,6 +53,7 @@ const { title } = Astro.props;
 			</div>
 		</div>
 
+		<Navigation />
 		<!-- Content -->
 		<main
 			class="relative z-10 min-h-screen flex items-center justify-center p-6"

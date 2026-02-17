@@ -1,11 +1,20 @@
 ---
 import Analytics from "@vercel/analytics/astro";
+import Navigation from "../components/Navigation.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { Toaster } from "../components/ui";
 
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props;
+
+const pathname = Astro.url.pathname;
+const hideSidebarRoutes = ["/ai-studio", "/prompts", "/agents"];
+const showSidebar = !hideSidebarRoutes.some((route) =>
+	pathname.startsWith(route),
+);
 ---
 
 <!doctype html>
@@ -16,8 +25,19 @@ const { title } = Astro.props;
 			name="description"
 			content="Professional developer tools for frontend and backend developers"
 		/>
-		<meta name="viewport" content="width=device-width" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="manifest" href="/manifest.json" />
+		<meta name="theme-color" content="#6366f1" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta
+			name="apple-mobile-web-app-status-bar-style"
+			content="black-translucent"
+		/>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -42,9 +62,21 @@ const { title } = Astro.props;
 			</div>
 		</div>
 		<div class="relative z-10">
+			<Navigation />
+			{showSidebar && <Sidebar />}
 			<slot />
+			<Toaster client:load />
 		</div>
 		<Analytics />
+		<script is:inline>
+			if ("serviceWorker" in navigator) {
+				window.addEventListener("load", () => {
+					navigator.serviceWorker.register("/sw.js").catch((err) => {
+						console.log("SW registration failed: ", err);
+					});
+				});
+			}
+		</script>
 	</body>
 </html>
 <style is:global>
@@ -188,10 +220,8 @@ const { title } = Astro.props;
 		) {
 			return localStorage.getItem("theme");
 		}
-		if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-			return "dark";
-		}
-		return "light";
+		// Default to dark mode
+		return "dark";
 	})();
 
 	if (theme === "light") {

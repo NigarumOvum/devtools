@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 export default function QrCodeGenerator() {
     const [text, setText] = useState('');
@@ -17,6 +18,7 @@ export default function QrCodeGenerator() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        toast.success('QR Code download started!');
     }, [qrUrl]);
 
     const copyQrUrl = useCallback(async () => {
@@ -24,6 +26,7 @@ export default function QrCodeGenerator() {
         await navigator.clipboard.writeText(qrUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+        toast.success('QR Code URL copied to clipboard!');
     }, [qrUrl]);
 
     const presets = [

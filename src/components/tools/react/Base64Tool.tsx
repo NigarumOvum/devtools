@@ -1,43 +1,46 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
+import { useCopyToClipboard } from "../../../lib/hooks";
 
 export default function Base64Tool() {
-    const [input, setInput] = useState('');
-    const [output, setOutput] = useState('');
-    const [mode, setMode] = useState<'encode' | 'decode'>('encode');
-    const [copied, setCopied] = useState(false);
-    const [error, setError] = useState('');
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [mode, setMode] = useState<"encode" | "decode">("encode");
+  const [error, setError] = useState("");
+  const { copied, copy } = useCopyToClipboard("Copied to clipboard!");
 
-    const process = useCallback(() => {
-        try {
-            if (mode === 'encode') {
-                setOutput(btoa(unescape(encodeURIComponent(input))));
-            } else {
-                setOutput(decodeURIComponent(escape(atob(input))));
-            }
-            setError('');
-        } catch (e) {
-            setError(mode === 'decode' ? 'Invalid Base64 string' : 'Encoding failed');
-            setOutput('');
-        }
-    }, [input, mode]);
+  const process = useCallback(() => {
+    try {
+      if (mode === "encode") {
+        setOutput(btoa(unescape(encodeURIComponent(input))));
+        toast.success("Text encoded successfully!");
+      } else {
+        setOutput(decodeURIComponent(escape(atob(input))));
+        toast.success("Base64 decoded successfully!");
+      }
+      setError("");
+    } catch {
+      const errorMsg =
+        mode === "decode" ? "Invalid Base64 string" : "Encoding failed";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      setOutput("");
+    }
+  }, [input, mode]);
 
-    const copyToClipboard = useCallback(async () => {
-        if (output) {
-            await navigator.clipboard.writeText(output);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    }, [output]);
+  const copyToClipboard = useCallback(() => {
+    if (output) copy(output);
+  }, [output, copy]);
 
-    const swapInputOutput = useCallback(() => {
-        setInput(output);
-        setOutput('');
-        setMode(mode === 'encode' ? 'decode' : 'encode');
-        setError('');
-    }, [output, mode]);
+  const swapInputOutput = useCallback(() => {
+    setInput(output);
+    setOutput("");
+    setMode(mode === "encode" ? "decode" : "encode");
+    setError("");
+  }, [output, mode]);
 
-    return (
-        <div className="tool-card">
+  return (
+    <div className="tool-card">
             <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg">
                     <span className="text-2xl">🔐</span>
@@ -52,8 +55,9 @@ export default function Base64Tool() {
                 {/* Mode Toggle */}
                 <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
                     <button
-                        onClick={() => { setMode('encode'); setError(''); }}
-                        className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${mode === 'encode'
+                        type="button"
+                        onClick={() => { setMode("encode"); setError(""); }}
+                        className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${mode === "encode"
                                 ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-600 dark:text-accent-400'
                                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                             }`}
@@ -61,8 +65,9 @@ export default function Base64Tool() {
                         <span className="mr-2">📤</span>Encode
                     </button>
                     <button
-                        onClick={() => { setMode('decode'); setError(''); }}
-                        className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${mode === 'decode'
+                        type="button"
+                        onClick={() => { setMode("decode"); setError(""); }}
+                        className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${mode === "decode"
                                 ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-600 dark:text-accent-400'
                                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                             }`}
@@ -121,6 +126,6 @@ export default function Base64Tool() {
                     </div>
                 )}
             </div>
-        </div>
-    );
+    </div>
+  );
 }

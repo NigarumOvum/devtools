@@ -1,0 +1,76 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getLangFromUrl, useTranslations } from "../utils/i18n";
+import { getSession } from "auth-astro/server";
+import { PromptLibrary } from "../components/PromptLibrary";
+import { AuthButton } from "../components/AuthButton";
+import { getUserPrompts } from "../lib/db/prompts";
+import type { PromptTemplate } from "../lib/ai/prompt-library";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const session = await getSession(Astro.request);
+
+let dbPrompts: PromptTemplate[] = [];
+if (session?.user?.id) {
+    dbPrompts = await getUserPrompts(session.user.id);
+}
+---
+
+<Layout title={t("prompts.pageTitle")}>
+    <main class="min-h-screen pt-20 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <header class="mb-12">
+                <h1
+                    class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight uppercase italic"
+                >
+                    {t("prompts.title")}
+                    <span class="gradient-text"
+                        >{t("prompts.titleHighlight")}</span
+                    >
+                </h1>
+                <p
+                    class="text-slate-600 dark:text-slate-400 max-w-2xl text-lg font-medium"
+                >
+                    {t("prompts.description")}
+                </p>
+            </header>
+
+            {
+                !session ? (
+                    <div class="glass-card p-12 rounded-[3rem] text-center border border-slate-200 dark:border-slate-800">
+                        <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-4xl mb-6 mx-auto">
+                            🔒
+                        </div>
+                        <h2 class="text-2xl font-bold mb-4">
+                            {t("prompts.signInTitle")}
+                        </h2>
+                        <p class="text-slate-500 mb-8 max-w-md mx-auto">
+                            {t("prompts.signInDesc")}
+                        </p>
+                        <AuthButton client:load session={session} lang={lang} />
+                    </div>
+                ) : (
+                    <div class="animate-fade-in">
+                        <PromptLibrary
+                            client:load
+                            prompts={dbPrompts}
+                            onSelect={(template) => {
+                                // In a standalone page, we might want to copy to clipboard or redirect to studio
+                                navigator.clipboard.writeText(template);
+                                alert(t("common.copied"));
+                            }}
+                        />
+                    </div>
+                )
+            }
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+    }
+</style>

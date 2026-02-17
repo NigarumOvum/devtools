@@ -3,21 +3,58 @@ import { PROMPT_LIBRARY, PROMPT_CATEGORIES, type PromptTemplate, type PromptVari
 
 interface PromptLibraryProps {
     onSelect: (template: string) => void;
+    prompts?: PromptTemplate[];
 }
 
 // Local storage keys
 const FAVORITES_KEY = 'devtools_prompt_favorites';
 const HISTORY_KEY = 'devtools_prompt_history';
 
-export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
+export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, prompts: initialPrompts }) => {
+    const [prompts, setPrompts] = useState<PromptTemplate[]>(initialPrompts || PROMPT_LIBRARY);
     const [search, setSearch] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [favorites, setFavorites] = useState<string[]>([]);
     const [history, setHistory] = useState<string[]>([]);
     const [selectedPrompt, setSelectedPrompt] = useState<PromptTemplate | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState<{ title: string; template: string; tags: string }>({ title: '', template: '', tags: '' });
     const [variableValues, setVariableValues] = useState<Record<string, string>>({});
     const [showQuickSearch, setShowQuickSearch] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+
+    const toggleCardExpand = (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setExpandedCards(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    const handleCopyTemplate = async (template: string, id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(template);
+            setCopiedId(id);
+            setTimeout(() => setCopiedId(null), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    };
+
+    // Update prompts if initialPrompts changes
+    useEffect(() => {
+        if (initialPrompts) {
+            setPrompts(initialPrompts);
+        }
+    }, [initialPrompts]);
 
     // Load favorites and history from localStorage
     useEffect(() => {
@@ -37,13 +74,15 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
             if (e.key === 'Escape') {
                 setShowQuickSearch(false);
                 setSelectedPrompt(null);
+                setIsEditing(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    const toggleFavorite = (id: string) => {
+    const toggleFavorite = (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
         const newFavorites = favorites.includes(id)
             ? favorites.filter(f => f !== id)
             : [...favorites, id];
@@ -58,29 +97,30 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
     };
 
     const filteredPrompts = useMemo(() => {
-        let prompts = PROMPT_LIBRARY;
+        let currentPrompts = prompts;
 
         if (activeCategory === 'favorites') {
-            prompts = prompts.filter(p => favorites.includes(p.id));
+            currentPrompts = currentPrompts.filter(p => favorites.includes(p.id));
         } else if (activeCategory === 'history') {
-            prompts = history.map(id => prompts.find(p => p.id === id)).filter(Boolean) as PromptTemplate[];
+            currentPrompts = history.map(id => currentPrompts.find(p => p.id === id)).filter(Boolean) as PromptTemplate[];
         } else if (activeCategory !== 'all') {
-            prompts = prompts.filter(p => p.category === activeCategory);
+            currentPrompts = currentPrompts.filter(p => p.category === activeCategory);
         }
 
         if (search) {
             const s = search.toLowerCase();
-            prompts = prompts.filter(p =>
+            currentPrompts = currentPrompts.filter(p =>
                 p.title.toLowerCase().includes(s) ||
                 p.template.toLowerCase().includes(s) ||
                 p.tags.some(t => t.toLowerCase().includes(s))
             );
         }
 
-        return prompts;
-    }, [search, activeCategory, favorites, history]);
+        return currentPrompts;
+    }, [search, activeCategory, favorites, history, prompts]);
 
-    const handleCopy = async (template: string) => {
+    const handleCopy = async (template: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
         try {
             await navigator.clipboard.writeText(template);
             setCopiedId('copy');
@@ -90,13 +130,69 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
         }
     };
 
+    const handleCardClick = (prompt: PromptTemplate) => {
+        setSelectedPrompt(prompt);
+        setVariableValues({});
+        setIsEditing(false);
+        setEditForm({
+            title: prompt.title,
+            template: prompt.template,
+            tags: prompt.tags.join(', ')
+        });
+    };
+
     const handleUsePrompt = (prompt: PromptTemplate) => {
         if (prompt.variables && prompt.variables.length > 0) {
-            setSelectedPrompt(prompt);
-            setVariableValues({});
+            // Variables handling remains inside the modal flow if needed, 
+            // but here we just select it directly if no variables or from modal
+            onSelect(prompt.template);
+            addToHistory(prompt.id);
+            setSelectedPrompt(null);
         } else {
             onSelect(prompt.template);
             addToHistory(prompt.id);
+            setSelectedPrompt(null);
+        }
+    };
+
+    const handleSaveEdit = async () => {
+        if (!selectedPrompt) return;
+        setIsSaving(true);
+        try {
+            const newTags = editForm.tags.split(',').map(t => t.trim()).filter(Boolean);
+
+            const response = await fetch('/api/prompts/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: selectedPrompt.id,
+                    title: editForm.title,
+                    template: editForm.template,
+                    tags: newTags,
+                    category: selectedPrompt.category // We don't edit category here for now
+                })
+            });
+
+            if (response.ok) {
+                // Update local state
+                const updatedPrompt = {
+                    ...selectedPrompt,
+                    title: editForm.title,
+                    template: editForm.template,
+                    tags: newTags
+                };
+
+                setPrompts(prev => prev.map(p => p.id === selectedPrompt.id ? updatedPrompt : p));
+                setSelectedPrompt(updatedPrompt);
+                setIsEditing(false);
+            } else {
+                alert('Failed to save changes');
+            }
+        } catch (error) {
+            console.error('Error saving prompt:', error);
+            alert('Error saving prompt');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -126,10 +222,29 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
         }
     };
 
+    const categories = useMemo(() => {
+        const cats = new Map<string, number>();
+        prompts.forEach(p => {
+            cats.set(p.category, (cats.get(p.category) || 0) + 1);
+        });
+
+        const sortedCats = Array.from(cats.keys()).sort().map(c => ({
+            id: c,
+            name: c,
+            icon: '📁',
+            count: cats.get(c) || 0
+        }));
+
+        return [
+            { id: 'all', name: 'All Prompts', icon: '📚', count: prompts.length },
+            ...sortedCats
+        ];
+    }, [prompts]);
+
     const allCategories = [
-        ...PROMPT_CATEGORIES,
-        { id: 'favorites', name: 'Favorites', icon: '⭐' },
-        { id: 'history', name: 'Recent', icon: '🕐' },
+        ...categories,
+        { id: 'favorites', name: 'Favorites', icon: '⭐', count: favorites.length },
+        { id: 'history', name: 'Recent', icon: '🕐', count: history.length },
     ];
 
     return (
@@ -144,7 +259,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
                             </div>
                             <div>
                                 <h2 className="text-xl font-black tracking-tight">Prompt Library</h2>
-                                <p className="text-xs text-slate-500 font-medium">{PROMPT_LIBRARY.length} templates • ⌘K to search</p>
+                                <p className="text-xs text-slate-500 font-medium">{(initialPrompts || PROMPT_LIBRARY).length} templates • ⌘K to search</p>
                             </div>
                         </div>
                     </div>
@@ -173,8 +288,8 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
                                 key={cat.id}
                                 onClick={() => setActiveCategory(cat.id)}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${activeCategory === cat.id
-                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                    : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white'
                                     }`}
                             >
                                 <span>{cat.icon}</span>
@@ -199,6 +314,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
                         <div className="grid grid-cols-1 gap-3">
                             {filteredPrompts.map((item) => {
                                 const technique = getTechniqueLabel(item.technique);
+                                const isExpanded = expandedCards.has(item.id);
                                 return (
                                     <div
                                         key={item.id}
@@ -237,10 +353,23 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
 
                                             <div className="flex flex-col gap-2">
                                                 <button
+                                                    onClick={(e) => toggleCardExpand(item.id, e)}
+                                                    className={`p-2 rounded-xl transition-all ${isExpanded
+                                                        ? 'bg-blue-500/20 text-blue-400'
+                                                        : 'bg-slate-700/50 text-slate-500 hover:text-blue-400 opacity-0 group-hover:opacity-100'
+                                                        }`}
+                                                    title={isExpanded ? 'Hide Template' : 'View Template'}
+                                                >
+                                                    <svg className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                <button
                                                     onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
                                                     className={`p-2 rounded-xl transition-all ${favorites.includes(item.id)
-                                                            ? 'bg-yellow-500/20 text-yellow-400'
-                                                            : 'bg-slate-700/50 text-slate-500 hover:text-yellow-400 opacity-0 group-hover:opacity-100'
+                                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                                        : 'bg-slate-700/50 text-slate-500 hover:text-yellow-400 opacity-0 group-hover:opacity-100'
                                                         }`}
                                                     title={favorites.includes(item.id) ? 'Remove from favorites' : 'Add to favorites'}
                                                 >
@@ -259,6 +388,41 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
                                                 </button>
                                             </div>
                                         </div>
+
+                                        {/* Expandable Template Preview */}
+                                        <div
+                                            className="overflow-hidden transition-all duration-300 ease-in-out"
+                                            style={{ maxHeight: isExpanded ? '600px' : '0px', opacity: isExpanded ? 1 : 0 }}
+                                        >
+                                            <div className="mt-4 pt-4 border-t border-slate-700/50">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Template</span>
+                                                    <button
+                                                        onClick={(e) => handleCopyTemplate(item.template, item.id, e)}
+                                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-[10px] font-bold text-slate-400 hover:text-white transition-colors"
+                                                    >
+                                                        {copiedId === item.id ? (
+                                                            <>
+                                                                <svg className="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                <span className="text-emerald-400">Copied!</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                                </svg>
+                                                                Copy
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                <pre className="text-xs text-slate-300 bg-slate-950/60 border border-slate-800 rounded-xl p-4 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed max-h-[400px] overflow-y-auto custom-scrollbar">
+                                                    {item.template}
+                                                </pre>
+                                            </div>
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -274,9 +438,9 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
                 </div>
             </div>
 
-            {/* Variable Input Modal */}
+            {/* Variable Input / Edit Modal */}
             {selectedPrompt && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={() => setSelectedPrompt(null)}>
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={() => !isEditing && setSelectedPrompt(null)}>
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" />
                     <div
                         className="relative bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
@@ -284,68 +448,147 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect }) => {
                     >
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500" />
 
-                        <div className="p-6 border-b border-slate-800">
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-2xl">{selectedPrompt.icon}</span>
-                                <h3 className="text-xl font-black text-white">{selectedPrompt.title}</h3>
+                        <div className="p-6 border-b border-slate-800 flex justify-between items-start">
+                            <div className="flex-1 mr-4">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <span className="text-2xl">{selectedPrompt.icon}</span>
+                                    {isEditing ? (
+                                        <input
+                                            value={editForm.title}
+                                            onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-xl font-black text-white outline-none focus:border-blue-500"
+                                            placeholder="Prompt Title"
+                                        />
+                                    ) : (
+                                        <h3 className="text-xl font-black text-white">{selectedPrompt.title}</h3>
+                                    )}
+                                </div>
+                                {!isEditing && <p className="text-sm text-slate-400">Fill in the variables below to customize your prompt</p>}
                             </div>
-                            <p className="text-sm text-slate-400">Fill in the variables below to customize your prompt</p>
+                            {!isEditing && (
+                                <button
+                                    onClick={() => {
+                                        setIsEditing(true);
+                                        setEditForm({
+                                            title: selectedPrompt.title,
+                                            template: selectedPrompt.template,
+                                            tags: selectedPrompt.tags.join(', ')
+                                        });
+                                    }}
+                                    className="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+                                    title="Edit Prompt"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 space-y-5">
-                            {selectedPrompt.variables?.map((variable) => (
-                                <div key={variable.id} className="space-y-2">
-                                    <label className="flex items-center gap-2 text-sm font-bold text-slate-300">
-                                        {variable.name}
-                                        {variable.required && <span className="text-rose-400">*</span>}
-                                    </label>
-
-                                    {variable.type === 'select' ? (
-                                        <select
-                                            value={variableValues[variable.id] || ''}
-                                            onChange={(e) => setVariableValues({ ...variableValues, [variable.id]: e.target.value })}
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all"
-                                        >
-                                            <option value="">{variable.placeholder}</option>
-                                            {variable.options?.map((opt) => (
-                                                <option key={opt} value={opt}>{opt}</option>
-                                            ))}
-                                        </select>
-                                    ) : variable.type === 'code' || variable.type === 'multiline' ? (
+                            {isEditing ? (
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-300">Template</label>
                                         <textarea
-                                            value={variableValues[variable.id] || ''}
-                                            onChange={(e) => setVariableValues({ ...variableValues, [variable.id]: e.target.value })}
-                                            placeholder={variable.placeholder}
-                                            className={`w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all resize-none ${variable.type === 'code' ? 'font-mono text-xs' : ''
-                                                }`}
-                                            rows={variable.type === 'code' ? 8 : 4}
+                                            value={editForm.template}
+                                            onChange={e => setEditForm({ ...editForm, template: e.target.value })}
+                                            className="w-full h-64 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all resize-none font-mono"
+                                            placeholder="Enter prompt template..."
                                         />
-                                    ) : (
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-300">Tags (comma separated)</label>
                                         <input
-                                            type="text"
-                                            value={variableValues[variable.id] || ''}
-                                            onChange={(e) => setVariableValues({ ...variableValues, [variable.id]: e.target.value })}
-                                            placeholder={variable.placeholder}
+                                            value={editForm.tags}
+                                            onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
                                             className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all"
+                                            placeholder="e.g. coding, debug, react"
                                         />
-                                    )}
+                                    </div>
                                 </div>
-                            ))}
+                            ) : (
+                                <>
+                                    {selectedPrompt.variables?.map((variable) => (
+                                        <div key={variable.id} className="space-y-2">
+                                            <label className="flex items-center gap-2 text-sm font-bold text-slate-300">
+                                                {variable.name}
+                                                {variable.required && <span className="text-rose-400">*</span>}
+                                            </label>
+
+                                            {variable.type === 'select' ? (
+                                                <select
+                                                    value={variableValues[variable.id] || ''}
+                                                    onChange={(e) => setVariableValues({ ...variableValues, [variable.id]: e.target.value })}
+                                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all"
+                                                >
+                                                    <option value="">{variable.placeholder}</option>
+                                                    {variable.options?.map((opt) => (
+                                                        <option key={opt} value={opt}>{opt}</option>
+                                                    ))}
+                                                </select>
+                                            ) : variable.type === 'code' || variable.type === 'multiline' ? (
+                                                <textarea
+                                                    value={variableValues[variable.id] || ''}
+                                                    onChange={(e) => setVariableValues({ ...variableValues, [variable.id]: e.target.value })}
+                                                    placeholder={variable.placeholder}
+                                                    className={`w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all resize-none ${variable.type === 'code' ? 'font-mono text-xs' : ''
+                                                        }`}
+                                                    rows={variable.type === 'code' ? 8 : 4}
+                                                />
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={variableValues[variable.id] || ''}
+                                                    onChange={(e) => setVariableValues({ ...variableValues, [variable.id]: e.target.value })}
+                                                    placeholder={variable.placeholder}
+                                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 transition-all"
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                    {(!selectedPrompt.variables || selectedPrompt.variables.length === 0) && (
+                                        <div className="text-center py-8 text-slate-500">
+                                            <p>No variables to configure.</p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         <div className="p-6 border-t border-slate-800 flex gap-3">
-                            <button
-                                onClick={() => setSelectedPrompt(null)}
-                                className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 font-bold hover:bg-slate-700 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSubmitVariables}
-                                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20"
-                            >
-                                Use Prompt →
-                            </button>
+                            {isEditing ? (
+                                <>
+                                    <button
+                                        onClick={() => setIsEditing(false)}
+                                        className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 font-bold hover:bg-slate-700 transition-colors"
+                                    >
+                                        Cancel Edit
+                                    </button>
+                                    <button
+                                        onClick={handleSaveEdit}
+                                        disabled={isSaving}
+                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                                    >
+                                        {isSaving ? 'Saving...' : 'Save Changes'}
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => setSelectedPrompt(null)}
+                                        className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 font-bold hover:bg-slate-700 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSubmitVariables}
+                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20"
+                                    >
+                                        Use Prompt →
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

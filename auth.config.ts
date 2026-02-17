@@ -1,5 +1,4 @@
 import Credentials from "@auth/core/providers/credentials";
-import Email from "@auth/core/providers/email";
 import { defineConfig } from "auth-astro";
 import { db } from "./src/lib/db";
 import { users } from "./src/lib/db/auth-schema";
@@ -10,17 +9,6 @@ import { eq } from "drizzle-orm";
 export default defineConfig({
     adapter: DrizzleAdapter(db),
     providers: [
-        Email({
-            server: {
-                host: import.meta.env.EMAIL_SERVER_HOST,
-                port: import.meta.env.EMAIL_SERVER_PORT,
-                auth: {
-                    user: import.meta.env.EMAIL_SERVER_USER,
-                    pass: import.meta.env.EMAIL_SERVER_PASSWORD,
-                },
-            },
-            from: import.meta.env.EMAIL_FROM,
-        }),
         Credentials({
             name: "Credentials",
             credentials: {
@@ -54,12 +42,14 @@ export default defineConfig({
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.role = (user as any).role || "user";
             }
             return token;
         },
         async session({ session, token }) {
             if (session.user && token.id) {
                 session.user.id = token.id as string;
+                (session.user as any).role = token.role as string;
             }
             return session;
         },

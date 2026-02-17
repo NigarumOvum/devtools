@@ -1,176 +1,346 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Navigation from '../../components/Navigation.astro';
-import Sidebar from '../../components/Sidebar.astro';
-import { getLangFromUrl, useTranslations } from '../../utils/i18n';
+import Layout from "../../layouts/Layout.astro";
+import { getLangFromUrl, useTranslations } from "../../utils/i18n";
 
 // React Tools
-import JsonFormatter from '../../components/react/JsonFormatter';
-import Base64Tool from '../../components/react/Base64Tool';
-import UuidGenerator from '../../components/react/UuidGenerator';
-import RegexTester from '../../components/react/RegexTester';
-import MarkdownPreview from '../../components/react/MarkdownPreview';
-import DiffChecker from '../../components/react/DiffChecker';
-import QrCodeGenerator from '../../components/react/QrCodeGenerator';
-import JsonToTypescript from '../../components/react/JsonToTypescript';
+import JsonFormatter from "../../components/tools/react/JsonFormatter";
+import PerformanceSuite from "../../components/tools/react/PerformanceSuite";
+import HttpClient from "../../components/tools/react/HttpClient";
+import Base64Tool from "../../components/tools/react/Base64Tool";
+import UuidGenerator from "../../components/tools/react/UuidGenerator";
+import RegexTester from "../../components/tools/react/RegexTester";
+import MarkdownPreview from "../../components/tools/react/MarkdownPreview";
+import DiffChecker from "../../components/tools/react/DiffChecker";
+import QrCodeGenerator from "../../components/tools/react/QrCodeGenerator";
+import JsonToTypescript from "../../components/tools/react/JsonToTypescript";
+import JsMinifier from "../../components/tools/react/JsMinifier";
+import CssConverter from "../../components/tools/react/CssConverter";
+import PwaManifestGenerator from "../../components/tools/react/PwaManifestGenerator";
+import HtmlConverter from "../../components/tools/react/HtmlConverter";
+import AutoRegex from "../../components/tools/react/AutoRegex";
+import A11yLab from "../../components/tools/react/A11yLab";
+import HtmlEditor from "../../components/tools/react/HtmlEditor";
+import LayoutGenerator from "../../components/tools/react/LayoutGenerator";
 
 // Vue Tools
-import JwtDecoder from '../../components/vue/JwtDecoder.vue';
-import TimestampConverter from '../../components/vue/TimestampConverter.vue';
-import UrlCodec from '../../components/vue/UrlCodec.vue';
-import CssFormatter from '../../components/vue/CssFormatter.vue';
-import HtmlEntityEncoder from '../../components/vue/HtmlEntityEncoder.vue';
-import SqlFormatter from '../../components/vue/SqlFormatter.vue';
+import JwtDecoder from "../../components/tools/vue/JwtDecoder.vue";
+import TimestampConverter from "../../components/tools/vue/TimestampConverter.vue";
+import UrlCodec from "../../components/tools/vue/UrlCodec.vue";
+import CssFormatter from "../../components/tools/vue/CssFormatter.vue";
+import HtmlEntityEncoder from "../../components/tools/vue/HtmlEntityEncoder.vue";
+import SqlFormatter from "../../components/tools/vue/SqlFormatter.vue";
 
 // Svelte Tools
-import HashGenerator from '../../components/svelte/HashGenerator.svelte';
-import ColorConverter from '../../components/svelte/ColorConverter.svelte';
-import LoremGenerator from '../../components/svelte/LoremGenerator.svelte';
-import CronParser from '../../components/svelte/CronParser.svelte';
-import PasswordGenerator from '../../components/svelte/PasswordGenerator.svelte';
+import HashGenerator from "../../components/tools/svelte/HashGenerator.svelte";
+import ColorConverter from "../../components/tools/svelte/ColorConverter.svelte";
+import LoremGenerator from "../../components/tools/svelte/LoremGenerator.svelte";
+import CronParser from "../../components/tools/svelte/CronParser.svelte";
+import PasswordGenerator from "../../components/tools/svelte/PasswordGenerator.svelte";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 ---
 
-<Layout title={t('main.title')}>
-  <Navigation />
-  <Sidebar />
-  
-  <main class="min-h-screen pt-20 md:pl-72 transition-all duration-300">
+<Layout title={t("main.title")}>
+  <main
+    id="main-content"
+    class="md:pl-72 h-[calc(100vh-5rem)] overflow-y-auto snap-y snap-mandatory scroll-smooth pt-20"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero Section -->
       <header class="text-center mb-16 animate-fade-in">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 text-sm font-medium mb-6"
+        >
           <span>⚡</span>
           <span>19 Herramientas Esenciales para Desarrolladores</span>
         </div>
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-          <span class="gradient-text">{t('main.title')}</span>
+          <span class="gradient-text">{t("main.title")}</span>
         </h1>
-        <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          {t('main.description')}
+        <p
+          class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed"
+        >
+          {t("main.description")}
         </p>
-        
-        <div class="flex flex-wrap justify-center gap-3 mt-8">
-          <span class="px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium">
-            ⚛️ React
-          </span>
-          <span class="px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium">
-            💚 Vue
-          </span>
-          <span class="px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
-            🔥 Svelte
-          </span>
-          <span class="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-medium">
-            🚀 Astro
-          </span>
-        </div>
       </header>
 
-      <!-- Formatters Section -->
-      <section id="tools" class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">✨</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.formatters')}</h2>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div id="json-formatter" class="animate-slide-up" style="animation-delay: 0.1s;">
+      <!-- Tool Sections Loop -->
+      <!-- Formatters -->
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="json-formatter"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <JsonFormatter client:load />
           </div>
-          <div id="base64-tool" class="animate-slide-up" style="animation-delay: 0.2s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="base64-tool"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <Base64Tool client:load />
           </div>
-          <div id="css-formatter" class="animate-slide-up" style="animation-delay: 0.3s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="css-formatter"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <CssFormatter client:load />
           </div>
-          <div id="sql-formatter" class="animate-slide-up" style="animation-delay: 0.4s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="sql-formatter"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <SqlFormatter client:load />
           </div>
         </div>
       </section>
 
-      <!-- Generators Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">⚡</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.generators')}</h2>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div id="uuid-generator" class="animate-slide-up" style="animation-delay: 0.1s;">
+      <!-- Generators -->
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="uuid-generator"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <UuidGenerator client:load />
           </div>
-          <div id="hash-generator" class="animate-slide-up" style="animation-delay: 0.2s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="hash-generator"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <HashGenerator client:load />
           </div>
-          <div id="lorem-generator" class="animate-slide-up" style="animation-delay: 0.3s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="lorem-generator"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <LoremGenerator client:load />
           </div>
-          <div id="password-generator" class="animate-slide-up" style="animation-delay: 0.4s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="password-generator"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <PasswordGenerator client:load />
           </div>
-          <div id="qr-generator" class="animate-slide-up" style="animation-delay: 0.5s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="qr-generator"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <QrCodeGenerator client:load />
           </div>
         </div>
       </section>
 
-      <!-- Converters Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">🔄</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.converters')}</h2>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div id="color-converter" class="animate-slide-up" style="animation-delay: 0.1s;">
+      <!-- Converters -->
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="color-converter"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <ColorConverter client:load />
           </div>
-          <div id="timestamp-converter" class="animate-slide-up" style="animation-delay: 0.2s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="timestamp-converter"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <TimestampConverter client:load />
           </div>
-          <div id="url-codec" class="animate-slide-up" style="animation-delay: 0.3s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="url-codec"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <UrlCodec client:load />
           </div>
-          <div id="html-entity-encoder" class="animate-slide-up" style="animation-delay: 0.4s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="html-entity-encoder"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <HtmlEntityEncoder client:load />
           </div>
-          <div id="json-to-typescript" class="animate-slide-up" style="animation-delay: 0.5s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="json-to-typescript"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <JsonToTypescript client:load />
           </div>
         </div>
       </section>
 
-      <!-- Validators & Testers Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">✅</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.validators')}</h2>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div id="regex-tester" class="animate-slide-up" style="animation-delay: 0.1s;">
+      <!-- Validators -->
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="regex-tester"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <RegexTester client:load />
           </div>
-          <div id="jwt-decoder" class="animate-slide-up" style="animation-delay: 0.2s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="jwt-decoder"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <JwtDecoder client:load />
           </div>
-          <div id="cron-parser" class="animate-slide-up" style="animation-delay: 0.3s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="cron-parser"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <CronParser client:load />
           </div>
         </div>
       </section>
 
-      <!-- Text Tools Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="text-2xl">📝</span>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{t('category.textTools')}</h2>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div id="markdown-preview" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.1s;">
+      <!-- Text Tools -->
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="markdown-preview"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <MarkdownPreview client:load />
           </div>
-          <div id="diff-checker" class="animate-slide-up lg:col-span-2" style="animation-delay: 0.2s;">
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="diff-checker"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
             <DiffChecker client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- Advanced Tools -->
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="http-client"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
+            <HttpClient client:load />
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="h-[calc(100vh-5rem)] snap-start flex flex-col justify-center px-4 md:px-8 reveal-on-scroll"
+      >
+        <div class="max-w-7xl mx-auto w-full">
+          <div
+            id="performance-lab"
+            class="glass-morph p-1 rounded-[2.5rem] shadow-2xl transition-all duration-700"
+          >
+            <PerformanceSuite client:load />
           </div>
         </div>
       </section>
@@ -179,28 +349,40 @@ const t = useTranslations(lang);
       <section id="about" class="mb-16">
         <div class="glass-card rounded-2xl p-8 md:p-12">
           <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Acerca de DevTools Pro</h2>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">
+              Acerca de DevTools Pro
+            </h2>
             <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-              Construido con la arquitectura Islands de Astro, este kit de herramientas muestra una integración 
-              perfecta de componentes React, Vue y Svelte. Todas las herramientas se ejecutan completamente 
-              en tu navegador — ningún dato se envía a ningún servidor.
+              Construido con la arquitectura Islands de Astro, este kit de
+              herramientas muestra una integración perfecta de componentes
+              React, Vue y Svelte. Todas las herramientas se ejecutan
+              completamente en tu navegador — ningún dato se envía a ningún
+              servidor.
             </p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">19</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Herramientas</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Herramientas
+                </div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">3</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Frameworks</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Frameworks
+                </div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">0</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Datos Enviados</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Datos Enviados
+                </div>
               </div>
               <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
                 <div class="text-3xl font-bold gradient-text">∞</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">Usos Gratis</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  Usos Gratis
+                </div>
               </div>
             </div>
           </div>
@@ -208,14 +390,79 @@ const t = useTranslations(lang);
       </section>
 
       <!-- Footer -->
-      <footer class="text-center text-sm text-slate-500 dark:text-slate-400 py-8 border-t border-slate-200 dark:border-slate-800">
+      <footer
+        class="text-center text-sm text-slate-500 dark:text-slate-400 py-8 border-t border-slate-200 dark:border-slate-800"
+      >
         <p>Construido con ❤️ usando Astro, React, Vue & Svelte</p>
       </footer>
     </div>
   </main>
 </Layout>
 
+<script>
+  function setupScrollreveal() {
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: "0px",
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+        } else {
+          entry.target.classList.remove("is-visible");
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll(".reveal-on-scroll").forEach((el) => {
+      observer.observe(el);
+    });
+  }
+
+  setupScrollreveal();
+  document.addEventListener("astro:after-swap", setupScrollreveal);
+</script>
+
 <style>
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: blur(10px);
+  }
+
+  .reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  .glass-morph {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .reveal-on-scroll.is-visible .glass-morph {
+    animation: portal-entry 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  @keyframes portal-entry {
+    0% {
+      opacity: 0;
+      transform: perspective(1000px) rotateX(10deg) translateY(20px);
+      box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: perspective(1000px) rotateX(0deg) translateY(0);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+  }
+
   @keyframes slideUp {
     from {
       opacity: 0;
@@ -226,7 +473,7 @@ const t = useTranslations(lang);
       transform: translateY(0);
     }
   }
-  
+
   .animate-slide-up {
     animation: slideUp 0.5s ease-out forwards;
     opacity: 0;

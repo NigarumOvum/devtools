@@ -5,25 +5,28 @@ import { AuthButton } from './AuthButton';
 import { AgentCard } from './AgentCard';
 import { AgentBuilder } from './AgentBuilder';
 import { PROMPT_LIBRARY } from '../lib/ai/prompt-library';
-import { AGENTS } from '../lib/ai/agents';
+import { ui, defaultLang } from '../i18n/ui';
 
-export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSession }) => {
+export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof ui }> = ({ initialSession, lang = defaultLang }) => {
     const [user, setUser] = useState(initialSession?.user || null);
     const [mounted, setMounted] = useState(false);
     const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
-    const [customAgents, setCustomAgents] = useState<any[]>([]);
+    const [agents, setAgents] = useState<any[]>([]);
     const [showBuilder, setShowBuilder] = useState(false);
     const [selectedAgentId, setSelectedAgentId] = useState('senior_se');
     const [loadingAgents, setLoadingAgents] = useState(false);
+    const [expertsSectionOpen, setExpertsSectionOpen] = useState(true);
 
-    const fetchCustomAgents = useCallback(async () => {
+    const t = (key: keyof typeof ui[typeof defaultLang]) => ui[lang][key] || ui[defaultLang][key];
+
+    const fetchAgents = useCallback(async () => {
         if (!user) return;
         setLoadingAgents(true);
         try {
             const res = await fetch('/api/agents');
             if (res.ok) {
                 const data = await res.json();
-                setCustomAgents(data);
+                setAgents(data);
             }
         } catch (e) {
             console.error('Failed to fetch agents:', e);
@@ -50,9 +53,9 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
 
     useEffect(() => {
         if (user) {
-            fetchCustomAgents();
+            fetchAgents();
         }
-    }, [user, fetchCustomAgents]);
+    }, [user, fetchAgents]);
 
     const handlePromptSelect = useCallback((template: string) => {
         setSelectedPrompt(template);
@@ -68,7 +71,7 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                 body: JSON.stringify(agentData),
             });
             if (res.ok) {
-                await fetchCustomAgents();
+                await fetchAgents();
                 setShowBuilder(false);
             }
         } catch (e) {
@@ -91,12 +94,11 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                     <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 flex items-center justify-center text-5xl mb-8 border border-blue-500/10">
                         🔓
                     </div>
-                    <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Unlock Expert AI Insights</h3>
+                    <h3 className="text-3xl font-black text-white mb-4 tracking-tight">{t('studioSection.unlockTitle')}</h3>
                     <p className="text-slate-400 mb-10 max-w-lg mx-auto leading-relaxed">
-                        Consult with Senior Software Engineers, Architects, and Security Experts.
-                        Get personalized advice powered by GPT-4o, Claude 3.5, and Gemini Pro.
+                        {t('studioSection.unlockDesc')}
                     </p>
-                    <AuthButton session={initialSession} />
+                    <AuthButton session={initialSession} lang={lang} />
                 </div>
             </div>
         );
@@ -105,37 +107,57 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
     const advancedPrompts = PROMPT_LIBRARY.filter(p => p.technique && p.technique !== 'standard').length;
     const promptsWithVars = PROMPT_LIBRARY.filter(p => p.variables && p.variables.length > 0).length;
 
-    const allAgents = [
-        ...Object.values(AGENTS).map(a => ({ ...a, isPreset: true })),
-        ...customAgents.map(a => ({ ...a, isPreset: false }))
-    ];
+    const PRESET_IDS = new Set(['senior_se', 'architect', 'manager', 'devops', 'security', 'frontend']);
+    const allAgents = agents.map(a => ({
+        ...a,
+        isPreset: PRESET_IDS.has(a.id)
+    }));
 
     return (
         <div className="flex flex-col gap-12">
             {/* Agent Selection Row */}
             <div className="space-y-6">
                 <div className="flex justify-between items-end">
-                    <div>
-                        <h2 className="text-xl font-black text-white mb-1 uppercase tracking-tight">Choose Your Expert</h2>
-                        <p className="text-slate-500 text-xs">Switch between specialized agents for different tasks.</p>
-                    </div>
+                    <button
+                        onClick={() => setExpertsSectionOpen(prev => !prev)}
+                        className="flex items-center gap-3 group text-left"
+                    >
+                        <svg
+                            className={`w-5 h-5 text-slate-400 group-hover:text-white transition-all duration-300 ${expertsSectionOpen ? 'rotate-0' : '-rotate-90'}`}
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                        <div>
+                            <h2 className="text-xl font-black text-white mb-1 uppercase tracking-tight group-hover:text-blue-400 transition-colors">{t('studioSection.chooseExpert')}</h2>
+                            <p className="text-slate-500 text-xs">{t('studioSection.chooseExpertDesc')}</p>
+                        </div>
+                    </button>
                     <button
                         onClick={() => setShowBuilder(true)}
                         className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group"
                     >
-                        <span className="text-lg group-hover:rotate-90 transition-transform duration-300">+</span> Create Custom Agent
+                        <span className="text-lg group-hover:rotate-90 transition-transform duration-300">+</span> {t('studioSection.createAgent')}
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
-                    {allAgents.map(agent => (
-                        <AgentCard
-                            key={agent.id}
-                            agent={agent}
-                            isSelected={selectedAgentId === agent.id}
-                            onSelect={setSelectedAgentId}
-                        />
-                    ))}
+                <div
+                    className="overflow-hidden transition-all duration-500 ease-in-out"
+                    style={{
+                        maxHeight: expertsSectionOpen ? '1000px' : '0px',
+                        opacity: expertsSectionOpen ? 1 : 0,
+                    }}
+                >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
+                        {allAgents.map(agent => (
+                            <AgentCard
+                                key={agent.id}
+                                agent={agent}
+                                isSelected={selectedAgentId === agent.id}
+                                onSelect={setSelectedAgentId}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -160,19 +182,19 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
                             <div className="text-2xl font-black text-white mb-0.5">{allAgents.length}</div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Experts</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('studioSection.experts')}</div>
                         </div>
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
                             <div className="text-2xl font-black text-white mb-0.5">3</div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">AI Models</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('studioSection.aiModels')}</div>
                         </div>
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
                             <div className="text-2xl font-black text-white mb-0.5">{PROMPT_LIBRARY.length}</div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Prompts</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('studioSection.prompts')}</div>
                         </div>
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
                             <div className="text-2xl font-black text-purple-400 mb-0.5">{advancedPrompts}</div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Advanced</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('studioSection.advanced')}</div>
                         </div>
                     </div>
 
@@ -181,30 +203,30 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                         <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600/10 to-purple-600/5 border border-purple-500/20">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-lg">🧠</span>
-                                <h4 className="text-xs font-black text-purple-400 uppercase tracking-wider">Chain-of-Thought</h4>
+                                <h4 className="text-xs font-black text-purple-400 uppercase tracking-wider">{t('studioSection.chainOfThought')}</h4>
                             </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed">Step-by-step reasoning for complex problems</p>
+                            <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.chainOfThoughtDesc')}</p>
                         </div>
                         <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-600/10 to-orange-600/5 border border-orange-500/20">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-lg">⚡</span>
-                                <h4 className="text-xs font-black text-orange-400 uppercase tracking-wider">ReAct Pattern</h4>
+                                <h4 className="text-xs font-black text-orange-400 uppercase tracking-wider">{t('studioSection.reactPattern')}</h4>
                             </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed">Reason + Act loops for task solving</p>
+                            <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.reactPatternDesc')}</p>
                         </div>
                         <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-600/10 to-blue-600/5 border border-blue-500/20">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-lg">📖</span>
-                                <h4 className="text-xs font-black text-blue-400 uppercase tracking-wider">Few-Shot</h4>
+                                <h4 className="text-xs font-black text-blue-400 uppercase tracking-wider">{t('studioSection.fewShot')}</h4>
                             </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed">Learn from examples for better output</p>
+                            <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.fewShotDesc')}</p>
                         </div>
                         <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-600/10 to-emerald-600/5 border border-emerald-500/20">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-lg">🔧</span>
-                                <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider">{promptsWithVars} Variables</h4>
+                                <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider">{promptsWithVars} {t('studioSection.variables')}</h4>
                             </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed">Interactive placeholders to customize</p>
+                            <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.variablesDesc')}</p>
                         </div>
                     </div>
 
@@ -212,19 +234,19 @@ export const StudioSection: React.FC<{ initialSession: any }> = ({ initialSessio
                     <div className="p-6 rounded-3xl bg-slate-900/50 border border-slate-800">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="text-lg">⌨️</span>
-                            <h3 className="font-black text-white text-sm">Keyboard Shortcuts</h3>
+                            <h3 className="font-black text-white text-sm">{t('studioSection.keyboardShortcuts')}</h3>
                         </div>
                         <div className="space-y-2 text-xs">
                             <div className="flex justify-between items-center">
-                                <span className="text-slate-400">Quick search prompts</span>
+                                <span className="text-slate-400">{t('studioSection.quickSearch')}</span>
                                 <kbd className="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-mono">⌘K</kbd>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-slate-400">Send message</span>
+                                <span className="text-slate-400">{t('studioSection.sendMessage')}</span>
                                 <kbd className="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-mono">⌘↵</kbd>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-slate-400">Close modal</span>
+                                <span className="text-slate-400">{t('studioSection.closeModal')}</span>
                                 <kbd className="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-mono">ESC</kbd>
                             </div>
                         </div>

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { AGENTS } from '../lib/ai/agents';
 import type { AIProvider, ChatMessage } from '../lib/ai/ai-service';
 
 const PROVIDERS = [
@@ -42,12 +41,9 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
         }
     }, [propAgentId]);
 
-    const allAvailableAgents = [
-        ...Object.values(AGENTS).map(a => ({ ...a, isPreset: true })),
-        ...agents.map(a => ({ ...a, isPreset: false }))
-    ];
+    const allAvailableAgents = agents;
 
-    const currentAgent = allAvailableAgents.find(a => a.id === selectedAgent) || AGENTS['senior_se'];
+    const currentAgent = allAvailableAgents.find(a => a.id === selectedAgent) || allAvailableAgents[0];
     const currentProvider = PROVIDERS.find(p => p.id === provider);
 
     // Load chat history
@@ -93,7 +89,7 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
     };
 
     const handleSend = async () => {
-        if (!input.trim() || loading) return;
+        if (!input.trim() || loading || !currentAgent) return;
 
         const userMessage: ChatMessage = { role: 'user', content: input };
         const newMessages = [...messages, userMessage];
