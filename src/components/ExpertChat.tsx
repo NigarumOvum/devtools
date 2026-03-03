@@ -41,10 +41,14 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
         }
     }, [propAgentId]);
 
-    const allAvailableAgents = agents;
+    const allAvailableAgents = Array.isArray(agents) && agents.length > 0 ? agents : [
+        { id: 'senior_se', name: 'Expert Chatbot', icon: '🤖', description: 'Thinking...' }
+    ];
 
-    const currentAgent = allAvailableAgents.find(a => a.id === selectedAgent) || allAvailableAgents[0];
-    const currentProvider = PROVIDERS.find(p => p.id === provider);
+    const currentAgent = allAvailableAgents.find(a => a?.id === selectedAgent) || allAvailableAgents[0];
+    const currentProvider = PROVIDERS.find(p => p.id === provider) || PROVIDERS[0];
+
+    console.log('ExpertChat: Rendering. Agent:', currentAgent?.id, 'Messages:', Array.isArray(messages) ? messages.length : 'not an array');
 
     // Load chat history
     useEffect(() => {
@@ -52,7 +56,7 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ initialPrompt, onPromptU
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                setMessages(parsed.messages || []);
+                setMessages(Array.isArray(parsed.messages) ? parsed.messages : []);
                 setStats(parsed.stats || { messageCount: 0, tokensEstimate: 0 });
             } catch (e) {
                 console.error('Failed to load chat history:', e);

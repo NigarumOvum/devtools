@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { getLangFromUrl, useTranslations } from "../utils/i18n";
 import { getSession } from "auth-astro/server";
 import { AuthButton } from "../components/AuthButton";
+import { AgentsManager } from "../components/AgentsManager";
 
 const session = await getSession(Astro.request);
 const lang = getLangFromUrl(Astro.url);
@@ -45,7 +46,7 @@ const stats = [
                         </div>
 
                         <a
-                            href="/studio#expert-chat"
+                            href="/ai-studio#expert-chat-container"
                             class="px-8 py-4 rounded-3xl bg-white text-slate-950 font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-white/10 flex items-center gap-3"
                         >
                             <span class="text-xl">+</span> {t("agents.createNew")}
@@ -70,31 +71,7 @@ const stats = [
                     ))}
                 </div>
 
-                <section
-                    id="agents-grid"
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up"
-                    style="animation-delay: 200ms;"
-                >
-                    <div class="flex flex-col items-center justify-center p-12 glass-card rounded-[3rem] border-2 border-dashed border-slate-700/50 bg-slate-900/20 text-center min-h-[400px] group hover:border-blue-500/50 transition-colors">
-                        <div class="w-20 h-20 rounded-3xl bg-slate-800 flex items-center justify-center text-4xl mb-6 text-slate-500 group-hover:scale-110 group-hover:bg-blue-600/20 group-hover:text-blue-400 transition-all duration-500">
-                            ➕
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">
-                            {t("agents.buildNew")}
-                        </h3>
-                        <p class="text-sm text-slate-500 max-w-xs leading-relaxed mb-8">
-                            {t("agents.buildNewDesc")}
-                        </p>
-                        <a
-                            href="/studio"
-                            class="px-8 py-3 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold hover:bg-blue-600/20 transition-all"
-                        >
-                            {t("agents.openStudio")}
-                        </a>
-                    </div>
-
-                    {/* Custom agents will be loaded here via Client-Side React soon */}
-                </section>
+                <AgentsManager client:load lang={lang} />
             </>
         )}
         </div>

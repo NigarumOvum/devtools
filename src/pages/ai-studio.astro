@@ -23,68 +23,6 @@ const t = useTranslations(lang);
                 </span>
             </nav>
 
-            <!-- Page Header -->
-            <div class="mb-10 animate-fade-in">
-                <h1
-                    class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight"
-                >
-                    {t("aiStudio.title")}
-                    <span class="gradient-text"
-                        >{t("aiStudio.titleHighlight")}</span
-                    >
-                </h1>
-                <p
-                    class="text-xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed"
-                >
-                    {t("aiStudio.description")}
-                </p>
-            </div>
-
-            <!-- Features Grid -->
-            <div
-                class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-slide-up"
-            >
-                <div
-                    class="p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10"
-                >
-                    <div class="text-2xl mb-3">🔒</div>
-                    <h3 class="font-bold text-slate-900 dark:text-white mb-2">
-                        {t("aiStudio.privacyTitle")}
-                    </h3>
-                    <p
-                        class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
-                    >
-                        {t("aiStudio.privacyDesc")}
-                    </p>
-                </div>
-                <div
-                    class="p-6 rounded-3xl bg-purple-500/5 border border-purple-500/10"
-                >
-                    <div class="text-2xl mb-3">⚡</div>
-                    <h3 class="font-bold text-slate-900 dark:text-white mb-2">
-                        {t("aiStudio.performanceTitle")}
-                    </h3>
-                    <p
-                        class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
-                    >
-                        {t("aiStudio.performanceDesc")}
-                    </p>
-                </div>
-                <div
-                    class="p-6 rounded-3xl bg-indigo-500/5 border border-indigo-500/10"
-                >
-                    <div class="text-2xl mb-3">🧠</div>
-                    <h3 class="font-bold text-slate-900 dark:text-white mb-2">
-                        {t("aiStudio.multiModelTitle")}
-                    </h3>
-                    <p
-                        class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
-                    >
-                        {t("aiStudio.multiModelDesc")}
-                    </p>
-                </div>
-            </div>
-
             <StudioSection client:load initialSession={session} lang={lang} />
         </div>
     </main>

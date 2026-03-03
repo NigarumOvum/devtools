@@ -8,7 +8,7 @@ export const defaultLang = 'en';
 export const ui = {
   en: {
     // Navigation
-    'nav.home': 'Home',
+    // 'nav.home': 'Home',
     'nav.tools': 'Tools',
     'nav.about': 'About',
     'nav.aiStudio': '🤖 AI Studio',
@@ -61,7 +61,7 @@ export const ui = {
     'main.title': 'DevTools Pro',
     'main.subtitle': 'Professional Developer Tools',
     'main.description': 'A comprehensive collection of essential utilities for frontend and backend developers. Fast, secure, and built with modern technologies.',
-    'main.essentialTools': '20 Essential Developer Tools',
+    'main.essentialTools': '29 Essential Developer Tools',
     'main.tools': 'Tools',
     'main.frameworks': 'Frameworks',
     'main.serverside': 'Serverside',
@@ -215,7 +215,7 @@ export const ui = {
   },
   es: {
     // Navigation
-    'nav.home': 'Inicio',
+    // 'nav.home': 'Inicio',
     'nav.tools': 'Herramientas',
     'nav.about': 'Acerca de',
     'nav.aiStudio': '🤖 Estudio IA',

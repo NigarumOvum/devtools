@@ -15,7 +15,8 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
     const [showBuilder, setShowBuilder] = useState(false);
     const [selectedAgentId, setSelectedAgentId] = useState('senior_se');
     const [loadingAgents, setLoadingAgents] = useState(false);
-    const [expertsSectionOpen, setExpertsSectionOpen] = useState(true);
+    const [expertsSectionOpen, setExpertsSectionOpen] = useState(false);
+    const [libraryOpen, setLibraryOpen] = useState(false);
 
     const t = (key: keyof typeof ui[typeof defaultLang]) => ui[lang][key] || ui[defaultLang][key];
 
@@ -53,14 +54,18 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
 
     useEffect(() => {
         if (user) {
+            console.log('StudioSection: Fetching agents for user', user.id);
             fetchAgents();
+        } else {
+            console.log('StudioSection: No user, skipping agent fetch');
         }
     }, [user, fetchAgents]);
 
     const handlePromptSelect = useCallback((template: string) => {
+        console.log('StudioSection: Prompt selected');
         setSelectedPrompt(template);
         // Scroll to chat
-        document.getElementById('expert-chat')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('expert-chat-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, []);
 
     const handleCreateAgent = async (agentData: any) => {
@@ -86,26 +91,18 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
         </div>
     );
 
-    if (!user) {
-        return (
-            <div className="relative overflow-hidden rounded-[2.5rem] border-2 border-dashed border-slate-700 bg-gradient-to-br from-slate-900/80 via-slate-900 to-slate-900/80">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-indigo-600/5"></div>
-                <div className="relative p-16 text-center">
-                    <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 flex items-center justify-center text-5xl mb-8 border border-blue-500/10">
-                        🔓
-                    </div>
-                    <h3 className="text-3xl font-black text-white mb-4 tracking-tight">{t('studioSection.unlockTitle')}</h3>
-                    <p className="text-slate-400 mb-10 max-w-lg mx-auto leading-relaxed">
-                        {t('studioSection.unlockDesc')}
-                    </p>
-                    <AuthButton session={initialSession} lang={lang} />
-                </div>
-            </div>
-        );
-    }
-
     const advancedPrompts = PROMPT_LIBRARY.filter(p => p.technique && p.technique !== 'standard').length;
     const promptsWithVars = PROMPT_LIBRARY.filter(p => p.variables && p.variables.length > 0).length;
+
+    // Ensure ExpertChat always has agents, even if fetchAgents hasn't completed or returned empty
+    const allAvailableAgents = Array.isArray(agents) && agents.length > 0 ? agents : [
+        { id: 'senior_se', name: 'Expert Chatbot', icon: '🤖', description: 'Thinking...' }
+    ];
+
+    // Find the currently selected agent or default to the first available
+    const currentAgent = allAvailableAgents.find(a => a?.id === selectedAgentId) || allAvailableAgents[0];
+
+    console.log('StudioSection: Rendering. User:', !!user, 'Mounted:', mounted, 'Agents:', agents.length, 'Selected Agent:', currentAgent?.id);
 
     const PRESET_IDS = new Set(['senior_se', 'architect', 'manager', 'devops', 'security', 'frontend']);
     const allAgents = agents.map(a => ({
@@ -115,54 +112,8 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
 
     return (
         <div className="flex flex-col gap-12">
-            {/* Agent Selection Row */}
-            <div className="space-y-6">
-                <div className="flex justify-between items-end">
-                    <button
-                        onClick={() => setExpertsSectionOpen(prev => !prev)}
-                        className="flex items-center gap-3 group text-left"
-                    >
-                        <svg
-                            className={`w-5 h-5 text-slate-400 group-hover:text-white transition-all duration-300 ${expertsSectionOpen ? 'rotate-0' : '-rotate-90'}`}
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                        <div>
-                            <h2 className="text-xl font-black text-white mb-1 uppercase tracking-tight group-hover:text-blue-400 transition-colors">{t('studioSection.chooseExpert')}</h2>
-                            <p className="text-slate-500 text-xs">{t('studioSection.chooseExpertDesc')}</p>
-                        </div>
-                    </button>
-                    <button
-                        onClick={() => setShowBuilder(true)}
-                        className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group"
-                    >
-                        <span className="text-lg group-hover:rotate-90 transition-transform duration-300">+</span> {t('studioSection.createAgent')}
-                    </button>
-                </div>
-
-                <div
-                    className="overflow-hidden transition-all duration-500 ease-in-out"
-                    style={{
-                        maxHeight: expertsSectionOpen ? '1000px' : '0px',
-                        opacity: expertsSectionOpen ? 1 : 0,
-                    }}
-                >
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
-                        {allAgents.map(agent => (
-                            <AgentCard
-                                key={agent.id}
-                                agent={agent}
-                                isSelected={selectedAgentId === agent.id}
-                                onSelect={setSelectedAgentId}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Chat Interface */}
-            <div id="expert-chat" className="w-full scroll-mt-24">
+            {/* Main Chat Interface - Top */}
+            <div id="expert-chat-container" className="w-full scroll-mt-24 min-h-[700px]">
                 <ExpertChat
                     initialPrompt={selectedPrompt}
                     onPromptUsed={() => setSelectedPrompt(null)}
@@ -171,14 +122,99 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                 />
             </div>
 
-            {/* Prompt Library and Support Info below */}
+            {/* Bottom Section: Controls and Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-slate-800/50">
-                <div id="prompt-library" className="lg:col-span-1">
-                    <PromptLibrary onSelect={handlePromptSelect} />
+                {/* Left Column: Management */}
+                <div className="space-y-12">
+                    {/* Agent Selection */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-end">
+                            <button
+                                onClick={() => setExpertsSectionOpen(prev => !prev)}
+                                className="flex items-center gap-3 group text-left"
+                            >
+                                <svg
+                                    className={`w-5 h-5 text-slate-400 group-hover:text-white transition-all duration-300 ${expertsSectionOpen ? 'rotate-0' : '-rotate-90'}`}
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <div>
+                                    <h2 className="text-xl font-black text-white mb-1 uppercase tracking-tight group-hover:text-blue-400 transition-colors">
+                                        {t('studioSection.chooseExpert')}
+                                    </h2>
+                                    <p className="text-slate-500 text-xs">{t('studioSection.chooseExpertDesc')}</p>
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => setShowBuilder(true)}
+                                className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group"
+                            >
+                                <span className="text-lg group-hover:rotate-90 transition-transform duration-300">+</span> {t('studioSection.createAgent')}
+                            </button>
+                        </div>
+
+                        <div
+                            className="overflow-hidden transition-all duration-500 ease-in-out"
+                            style={{
+                                maxHeight: expertsSectionOpen ? '1000px' : '0px',
+                                opacity: expertsSectionOpen ? 1 : 0,
+                            }}
+                        >
+                            {loadingAgents ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className="h-32 bg-slate-800/50 rounded-2xl animate-pulse border border-slate-700"></div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {allAgents.map(agent => (
+                                        <AgentCard
+                                            key={agent.id}
+                                            agent={agent}
+                                            isSelected={selectedAgentId === agent.id}
+                                            onSelect={setSelectedAgentId}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Prompt Library */}
+                    <div id="prompt-library" className="space-y-6">
+                        <button
+                            onClick={() => setLibraryOpen(prev => !prev)}
+                            className="flex items-center gap-3 group text-left w-full"
+                        >
+                            <svg
+                                className={`w-5 h-5 text-slate-400 group-hover:text-white transition-all duration-300 ${libraryOpen ? 'rotate-0' : '-rotate-90'}`}
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                            <div>
+                                <h2 className="text-xl font-black text-white mb-1 uppercase tracking-tight group-hover:text-purple-400 transition-colors">Prompt Library</h2>
+                                <p className="text-slate-500 text-xs">Browse and use pre-configured prompt templates</p>
+                            </div>
+                        </button>
+
+                        <div
+                            className="overflow-hidden transition-all duration-500 ease-in-out"
+                            style={{
+                                maxHeight: libraryOpen ? '2000px' : '0px',
+                                opacity: libraryOpen ? 1 : 0,
+                            }}
+                        >
+                            <PromptLibrary onSelect={handlePromptSelect} />
+                        </div>
+                    </div>
                 </div>
 
-                <div className="space-y-6">
-                    {/* Stats */}
+                {/* Right Column: Stats and Feature Cards */}
+                <div className="space-y-8">
+                    {/* Stats Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
                             <div className="text-2xl font-black text-white mb-0.5">{allAgents.length}</div>
@@ -199,7 +235,7 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                     </div>
 
                     {/* Features Grid */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600/10 to-purple-600/5 border border-purple-500/20">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-lg">🧠</span>
@@ -214,23 +250,9 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                             </div>
                             <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.reactPatternDesc')}</p>
                         </div>
-                        <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-600/10 to-blue-600/5 border border-blue-500/20">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="text-lg">📖</span>
-                                <h4 className="text-xs font-black text-blue-400 uppercase tracking-wider">{t('studioSection.fewShot')}</h4>
-                            </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.fewShotDesc')}</p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-600/10 to-emerald-600/5 border border-emerald-500/20">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="text-lg">🔧</span>
-                                <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider">{promptsWithVars} {t('studioSection.variables')}</h4>
-                            </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed">{t('studioSection.variablesDesc')}</p>
-                        </div>
                     </div>
 
-                    {/* Pro Tips */}
+                    {/* Keyboard Shortcuts */}
                     <div className="p-6 rounded-3xl bg-slate-900/50 border border-slate-800">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="text-lg">⌨️</span>
@@ -244,10 +266,6 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                             <div className="flex justify-between items-center">
                                 <span className="text-slate-400">{t('studioSection.sendMessage')}</span>
                                 <kbd className="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-mono">⌘↵</kbd>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-slate-400">{t('studioSection.closeModal')}</span>
-                                <kbd className="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-mono">ESC</kbd>
                             </div>
                         </div>
                     </div>
