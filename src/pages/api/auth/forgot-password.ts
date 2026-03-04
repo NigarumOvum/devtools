@@ -4,13 +4,14 @@ import { users, verificationTokens } from '../../../lib/db/auth-schema';
 import { eq } from 'drizzle-orm';
 import { generatePasswordResetToken } from '../../../lib/auth-utils';
 import { sendPasswordResetEmail } from '../../../lib/mail';
+import { jsonResponse, errorResponse } from '../../../lib/api-utils';
 
 export const POST: APIRoute = async ({ request }) => {
     try {
         const { email } = await request.json();
 
         if (!email) {
-            return new Response(JSON.stringify({ error: 'Email is required' }), { status: 400 });
+            return errorResponse('Email is required', 400);
         }
 
         console.log(`Password reset requested for: ${email}`);
@@ -32,9 +33,9 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         // Always return success to prevent user enumeration
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
+        return jsonResponse({ success: true });
     } catch (error: any) {
         console.error('Forgot Password API Error:', error);
-        return new Response(JSON.stringify({ error: 'An unexpected error occurred. Please try again later.' }), { status: 500 });
+        return errorResponse('An unexpected error occurred. Please try again later.');
     }
 };

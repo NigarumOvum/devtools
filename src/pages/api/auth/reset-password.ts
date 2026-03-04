@@ -3,6 +3,7 @@ import { db } from '../../../lib/db';
 import { users, verificationTokens } from '../../../lib/db/auth-schema';
 import { eq, and } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { jsonResponse, errorResponse } from '../../../lib/api-utils';
 
 export const POST: APIRoute = async ({ request }) => {
     try {
@@ -15,7 +16,7 @@ export const POST: APIRoute = async ({ request }) => {
             .limit(1);
 
         if (!verificationToken) {
-            return new Response(JSON.stringify({ error: 'Invalid or expired token' }), { status: 400 });
+            return errorResponse('Invalid or expired token', 400);
         }
 
         // Ensure date comparison is robust
@@ -24,7 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
 
         if (expiresAt < now) {
             await db.delete(verificationTokens).where(eq(verificationTokens.token, token));
-            return new Response(JSON.stringify({ error: 'Token has expired' }), { status: 400 });
+            return errorResponse('Token has expired', 400);
         }
 
         const email = verificationToken.identifier.startsWith('reset:')
@@ -34,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
         const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
         if (!user) {
-            return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+            return errorResponse('User not found', 404);
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,9 +46,9 @@ export const POST: APIRoute = async ({ request }) => {
 
         await db.delete(verificationTokens).where(eq(verificationTokens.token, token));
 
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
+        return jsonResponse({ success: true });
     } catch (error: any) {
         console.error('Reset Password API Error:', error);
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        return errorResponse(error.message);
     }
 };

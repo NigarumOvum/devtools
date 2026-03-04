@@ -6,15 +6,15 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { generateVerificationToken } from '../../../lib/auth-utils';
 import { sendVerificationEmail } from '../../../lib/mail';
+import { jsonResponse, errorResponse } from '../../../lib/api-utils';
 
 export const POST: APIRoute = async ({ request }) => {
     try {
         const { name, email, password } = await request.json();
 
         const [existingUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-
         if (existingUser) {
-            return new Response(JSON.stringify({ error: 'Email already in use' }), { status: 400 });
+            return errorResponse('Email already in use', 400);
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,9 +30,9 @@ export const POST: APIRoute = async ({ request }) => {
         const token = await generateVerificationToken(email);
         await sendVerificationEmail(email, token.token);
 
-        return new Response(JSON.stringify({ success: true, message: 'User registered. Please check your email for verification.' }), { status: 201 });
+        return jsonResponse({ success: true, message: 'User registered. Please check your email for verification.' }, 201);
     } catch (error: any) {
         console.error('Registration API Error:', error);
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        return errorResponse(error.message);
     }
 };

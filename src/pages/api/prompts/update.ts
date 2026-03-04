@@ -1,42 +1,32 @@
 
 import type { APIRoute } from 'astro';
-import { getSession } from 'auth-astro/server';
-import { drizzle } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client";
-import { prompts } from "../../../lib/db/auth-schema";
 import { eq, and } from 'drizzle-orm';
 
-const dbUrl = import.meta.env.TURSO_DATABASE_URL;
-const authToken = import.meta.env.TURSO_AUTH_TOKEN;
-
-const client = createClient({ url: dbUrl, authToken: authToken });
-const db = drizzle(client);
+import { requireUser, jsonResponse, errorResponse } from '../../../lib/api-utils';
+import { db } from '../../../lib/db';
+import { prompts } from '../../../lib/db/auth-schema';
+import { clearUserPromptCache } from '../../../lib/cache';
 
 export const POST: APIRoute = async ({ request }) => {
-    const session = await getSession(request);
-    if (!session || !session.user) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
     try {
+        const userId = await requireUser(request);
         const body = await request.json();
         const { id, title, template, tags, category } = body;
 
         if (!id) {
-            return new Response(JSON.stringify({ error: 'Missing prompt ID' }), { status: 400 });
+            return errorResponse('Missing prompt ID', 400);
         }
 
-        // Verify ownership
-        const existingPrompt = await db.select()
+        const existingPrompt = await db
+            .select()
             .from(prompts)
-            .where(and(eq(prompts.id, id), eq(prompts.userId, session.user.id)))
+            .where(and(eq(prompts.id, id), eq(prompts.userId, userId)))
             .get();
 
         if (!existingPrompt) {
-            return new Response(JSON.stringify({ error: 'Prompt not found or unauthorized' }), { status: 404 });
+            return errorResponse('Prompt not found or unauthorized', 404);
         }
 
-        // Update
         await db.update(prompts)
             .set({
                 title: title || existingPrompt.title,
@@ -46,10 +36,13 @@ export const POST: APIRoute = async ({ request }) => {
             })
             .where(eq(prompts.id, id));
 
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-
-    } catch (error) {
-        console.error('Error updating prompt:', error);
-        return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+        clearUserPromptCache(userId);
+        return jsonResponse({ success: true });
+    } catch (err: any) {
+        if (err.message === 'Unauthorized') {
+            return errorResponse('Unauthorized', 401);
+        }
+        console.error('Error updating prompt:', err);
+        return errorResponse('Internal Server Error');
     }
-}
+};

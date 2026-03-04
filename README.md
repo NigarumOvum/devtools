@@ -14,6 +14,52 @@ npm create astro@latest -- --template basics
 
 ## 🚀 Project Structure
 
+## 🧠 Multi-Agent Workflows
+
+The application now supports building lightweight linear workflows that chain
+existing agents together. A new workflow builder lives on the AI Studio page –
+select multiple agents, provide an initial message, and the output of each
+agent will be fed as the input to the next in sequence. Custom agents stored in
+the database can be included alongside the built‑in roles.
+
+An HTTP API is available at `POST /api/agents/workflow`:
+
+```json
+{
+  "agentIds": ["architect","senior_se"],
+  "message": "Design a scalable messaging system",
+  "provider": "openai"
+}
+```
+
+### Markdown import/export
+
+Agents (built‑in and user‑created) can now be serialized to and from a
+simple markdown format described by `src/lib/ai/markdown.ts`.  Each agent is a
+YAML‑style document boundaries with `---` and includes metadata followed by a
+fenced code block containing the `systemPrompt`.
+
+- **Export**: `GET /api/agents/markdown` returns markdown for the current
+  user’s agents.  Query parameters:
+  - `ids` (comma list) – limit output to specific agents.
+  - `presets=true` – include the built‑in roles as well.
+
+- **Import**: `POST /api/agents/markdown` with `{ "markdown": "..." }`
+  will parse and insert or update agents for the authenticated user.
+
+Workflows may also be saved in markdown using a minimal key/value syntax and
+can be imported directly in the front‑end (see the `MultiAgentWorkflow`
+component).
+
+```md
+---
+name: Code Review Chain
+agents: senior_se, security, manager
+---
+```
+The response contains a list of results from each agent in order.
+
+
 Inside of your Astro project, you'll see the following folders and files:
 
 ```text

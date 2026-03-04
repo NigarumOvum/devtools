@@ -12,21 +12,22 @@ export const AgentsManager: React.FC<{ lang: string }> = ({ lang }) => {
         return (translations as any)[key] || (ui[defaultLang] as any)[key] || key;
     };
 
-    useEffect(() => {
-        const fetchAgents = async () => {
-            try {
-                const res = await fetch('/api/agents');
-                if (res.ok) {
-                    const data = await res.json();
-                    setAgents(data);
-                }
-            } catch (e) {
-                console.error('Failed to fetch agents:', e);
-            } finally {
-                setLoading(false);
+    const fetchAgents = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/agents');
+            if (res.ok) {
+                const data = await res.json();
+                setAgents(data);
             }
-        };
+        } catch (e) {
+            console.error('Failed to fetch agents:', e);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchAgents();
     }, []);
 
@@ -46,8 +47,80 @@ export const AgentsManager: React.FC<{ lang: string }> = ({ lang }) => {
         isPreset: PRESET_IDS.has(a.id)
     }));
 
+    const [importing, setImporting] = useState(false);
+    const [importText, setImportText] = useState('');
+
+    const exportAll = async () => {
+        const res = await fetch('/api/agents/markdown');
+        if (res.ok) {
+            const md = await res.text();
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'agents.md';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    };
+
+    const handleImport = async () => {
+        try {
+            const res = await fetch('/api/agents/markdown', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ markdown: importText }),
+            });
+            if (res.ok) {
+                await fetchAgents();
+                setImporting(false);
+                setImportText('');
+            } else {
+                console.error('import failed', await res.text());
+            }
+        } catch (e) {
+            console.error('import error', e);
+        }
+    };
+
     return (
-        <section id="agents-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up">
+        <section>
+            {/* import/export controls */}
+            <div className="flex justify-end items-center mb-4 gap-2">
+                {importing && (
+                    <textarea
+                        className="w-full max-w-lg p-2 border rounded"
+                        rows={4}
+                        placeholder="Paste agents markdown here"
+                        value={importText}
+                        onChange={e => setImportText(e.target.value)}
+                    />
+                )}
+                {importing ? (
+                    <button
+                        className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+                        onClick={handleImport}
+                    >
+                        Import
+                    </button>
+                ) : (
+                    <>
+                        <button
+                            className="px-3 py-1 bg-green-600 text-white rounded text-sm"
+                            onClick={exportAll}
+                        >
+                            Export all
+                        </button>
+                        <button
+                            className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+                            onClick={() => setImporting(true)}
+                        >
+                            Import
+                        </button>
+                    </>
+                )}
+            </div>
+            <section id="agents-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up">
             <div className="flex flex-col items-center justify-center p-12 glass-card rounded-[3rem] border-2 border-dashed border-slate-700/50 bg-slate-900/20 text-center min-h-[400px] group hover:border-blue-500/50 transition-colors">
                 <div className="w-20 h-20 rounded-3xl bg-slate-800 flex items-center justify-center text-4xl mb-6 text-slate-500 group-hover:scale-110 group-hover:bg-blue-600/20 group-hover:text-blue-400 transition-all duration-500">
                     ➕

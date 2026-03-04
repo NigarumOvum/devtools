@@ -117,6 +117,13 @@ export const ui = {
     'agents.buildNew': 'Build a New Agent',
     'agents.buildNewDesc': 'Define custom instructions and specialized knowledge for your project tasks.',
     'agents.openStudio': 'Open Studio',
+    // multi-agent workflows
+    'workflow.title': 'Multi-Agent Workflow',
+    'workflow.inputPlaceholder': 'Enter initial instruction or question…',
+    'workflow.chooseAgents': 'Choose agents to run in sequence',
+    'workflow.run': 'Run Workflow',
+    'workflow.running': 'Running…',
+    'workflow.results': 'Results',
 
     // Account Page
     'account.pageTitle': 'Account Settings | DevTools Pro',
@@ -324,6 +331,13 @@ export const ui = {
     'agents.buildNew': 'Crear un Nuevo Agente',
     'agents.buildNewDesc': 'Define instrucciones personalizadas y conocimiento especializado para las tareas de tu proyecto.',
     'agents.openStudio': 'Abrir Estudio',
+    // multi-agent workflow
+    'workflow.title': 'Flujo de trabajo multi-agente',
+    'workflow.inputPlaceholder': 'Introduce la instrucción o pregunta inicial…',
+    'workflow.chooseAgents': 'Elige agentes en secuencia',
+    'workflow.run': 'Ejecutar flujo',
+    'workflow.running': 'Ejecutando…',
+    'workflow.results': 'Resultados',
 
     // Account Page
     'account.pageTitle': 'Configuración de Cuenta | DevTools Pro',

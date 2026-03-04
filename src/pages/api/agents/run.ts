@@ -1,47 +1,37 @@
 import type { APIRoute } from 'astro';
-import { getSession } from 'auth-astro/server';
-import { db } from '../../../lib/db';
-import { agents } from '../../../lib/db/auth-schema';
 import { eq, and } from 'drizzle-orm';
 import { openaiAgentsService } from '../../../lib/ai/openai-agents';
+import { jsonResponse, errorResponse, requireUser } from '../../../lib/api-utils';
+import { fetchUserAgents } from '../../../lib/cache';
+
+async function getCachedAgent(userId: string, agentId: string) {
+    const agents = await fetchUserAgents(userId);
+    return agents.find((a: any) => a.id === agentId);
+}
 
 export const POST: APIRoute = async ({ request }) => {
-    const session = await getSession(request);
-    if (!session?.user?.id) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
     try {
+        const userId = await requireUser(request);
         const { agentId, message } = await request.json();
 
-        // 1. Fetch agent details from DB
-        const [dbAgent] = await db.select().from(agents).where(
-            and(eq(agents.id, agentId), eq(agents.userId, session.user.id))
-        );
-
+        const dbAgent = await getCachedAgent(userId, agentId);
         if (!dbAgent) {
-            return new Response(JSON.stringify({ error: 'Agent not found' }), { status: 404 });
+            return errorResponse('Agent not found', 404);
         }
 
-        // 2. Create Agent instance using our service
         const agent = await openaiAgentsService.createAgent({
             name: dbAgent.name,
             instructions: dbAgent.systemPrompt,
             model: dbAgent.model || 'gpt-4o',
-            // tools: JSON.parse(dbAgent.tools || '[]')
         });
 
-        // 3. Run the agent
         const result = await openaiAgentsService.runAgent(agent, message);
-
-        // 4. Return result
-        // Note: For now we return the full result, but we might want to return just the text
-        return new Response(JSON.stringify({ response: result }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    } catch (error: any) {
-        console.error('Agent Run Error:', error);
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        return jsonResponse({ response: result });
+    } catch (err: any) {
+        if (err.message === 'Unauthorized') {
+            return errorResponse('Unauthorized', 401);
+        }
+        console.error('Agent Run Error:', err);
+        return errorResponse(err.message);
     }
 };

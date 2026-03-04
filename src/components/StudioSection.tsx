@@ -4,6 +4,7 @@ import { PromptLibrary } from './PromptLibrary';
 import { AuthButton } from './AuthButton';
 import { AgentCard } from './AgentCard';
 import { AgentBuilder } from './AgentBuilder';
+import { MultiAgentWorkflow } from './MultiAgentWorkflow';
 import { PROMPT_LIBRARY } from '../lib/ai/prompt-library';
 import { ui, defaultLang } from '../i18n/ui';
 
@@ -209,6 +210,11 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                         >
                             <PromptLibrary onSelect={handlePromptSelect} />
                         </div>
+                    </div>
+
+                    {/* Multi-agent workflow builder */}
+                    <div className="space-y-6 mt-12">
+                        <MultiAgentWorkflow lang={lang} />
                     </div>
                 </div>
 
