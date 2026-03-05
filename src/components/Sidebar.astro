@@ -10,10 +10,22 @@ const toolCategories = [
     name: t("category.formatters"),
     icon: "✨",
     tools: [
-      { name: t("tools.jsonFormatter"), href: "/tools/json-formatter", icon: "📋" },
+      {
+        name: t("tools.jsonFormatter"),
+        href: "/tools/json-formatter",
+        icon: "📋",
+      },
       { name: t("tools.base64"), href: "/tools/base64-tool", icon: "🔐" },
-      { name: t("tools.cssFormatter"), href: "/tools/css-formatter", icon: "🎨" },
-      { name: t("tools.sqlFormatter"), href: "/tools/sql-formatter", icon: "🗃️" },
+      {
+        name: t("tools.cssFormatter"),
+        href: "/tools/css-formatter",
+        icon: "🎨",
+      },
+      {
+        name: t("tools.sqlFormatter"),
+        href: "/tools/sql-formatter",
+        icon: "🗃️",
+      },
       { name: "JS Minifier", href: "/tools/js-minifier", icon: "📦" },
       { name: "CSS Bridge", href: "/tools/css-converter", icon: "🌉" },
     ],
@@ -22,9 +34,21 @@ const toolCategories = [
     name: t("category.generators"),
     icon: "⚡",
     tools: [
-      { name: t("tools.uuidGenerator"), href: "/tools/uuid-generator", icon: "🎲" },
-      { name: t("tools.hashGenerator"), href: "/tools/hash-generator", icon: "🔒" },
-      { name: t("tools.loremGenerator"), href: "/tools/lorem-generator", icon: "📝" },
+      {
+        name: t("tools.uuidGenerator"),
+        href: "/tools/uuid-generator",
+        icon: "🎲",
+      },
+      {
+        name: t("tools.hashGenerator"),
+        href: "/tools/hash-generator",
+        icon: "🔒",
+      },
+      {
+        name: t("tools.loremGenerator"),
+        href: "/tools/lorem-generator",
+        icon: "📝",
+      },
       {
         name: t("tools.passwordGenerator"),
         href: "/tools/password-generator",
@@ -38,15 +62,27 @@ const toolCategories = [
     name: t("category.converters"),
     icon: "🔄",
     tools: [
-      { name: t("tools.colorConverter"), href: "/tools/color-converter", icon: "🌈" },
+      {
+        name: t("tools.colorConverter"),
+        href: "/tools/color-converter",
+        icon: "🌈",
+      },
       {
         name: t("tools.timestampConverter"),
         href: "/tools/timestamp-converter",
         icon: "⏰",
       },
       { name: t("tools.urlCodec"), href: "/tools/url-codec", icon: "🔗" },
-      { name: t("tools.htmlEntity"), href: "/tools/html-entity-encoder", icon: "🔤" },
-      { name: t("tools.jsonToTs"), href: "/tools/json-to-typescript", icon: "🔷" },
+      {
+        name: t("tools.htmlEntity"),
+        href: "/tools/html-entity-encoder",
+        icon: "🔤",
+      },
+      {
+        name: t("tools.jsonToTs"),
+        href: "/tools/json-to-typescript",
+        icon: "🔷",
+      },
       { name: "HTML Bridge", href: "/tools/html-converter", icon: "🌉" },
     ],
   },
@@ -72,6 +108,7 @@ const toolCategories = [
         href: "/tools/markdown-preview",
         icon: "📄",
       },
+      { name: "Markdown Builder", href: "/tools/markdown-builder", icon: "📝" },
       { name: t("tools.diffChecker"), href: "/tools/diff-checker", icon: "📊" },
       { name: "HTML Lab", href: "/tools/html-editor", icon: "🧪" },
       { name: "Layout Lab", href: "/tools/layout-generator", icon: "▢" },
@@ -105,8 +142,8 @@ const currentPath = Astro.url.pathname;
               <div class="flex items-center gap-2">
                 <span>{category.icon}</span>
                 <span>{category.name}</span>
-            </div>
-            <svg
+              </div>
+              <svg
                 class="w-4 h-4 transition-transform duration-300 transform"
                 fill="none"
                 stroke="currentColor"

@@ -66,12 +66,6 @@ export const AuthButton: React.FC<{ session: any; mode?: 'login' | 'register'; l
                         {activeUser.name?.charAt(0) || 'U'}
                     </div>
                 )}
-                <button
-                    onClick={handleSignOut}
-                    className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 px-4 py-2 rounded-xl text-xs font-bold transition-all border border-rose-500/20"
-                >
-                    {t('auth.signOut')}
-                </button>
             </div>
         );
     }

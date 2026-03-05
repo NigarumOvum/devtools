@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PROMPT_LIBRARY, PROMPT_CATEGORIES, type PromptTemplate, type PromptVariable } from '../lib/ai/prompt-library';
 
 interface PromptLibraryProps {
@@ -311,12 +312,20 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, prompts:
                             <p className="text-xs text-slate-600 mt-1">Try a different search or category</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 gap-3">
-                            {filteredPrompts.map((item) => {
+                        <motion.div
+                            className="grid grid-cols-1 gap-3"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ staggerChildren: 0.05 }}
+                        >
+                            {filteredPrompts.map((item, index) => {
                                 const technique = getTechniqueLabel(item.technique);
                                 const isExpanded = expandedCards.has(item.id);
                                 return (
-                                    <div
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.2, delay: index * 0.03 }}
                                         key={item.id}
                                         className="group p-5 bg-slate-800/30 hover:bg-slate-800/60 border border-slate-700/50 hover:border-blue-500/30 rounded-2xl cursor-pointer transition-all duration-200"
                                     >
@@ -423,10 +432,10 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, prompts:
                                                 </pre>
                                             </div>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 );
                             })}
-                        </div>
+                        </motion.div>
                     )}
                 </div>
 

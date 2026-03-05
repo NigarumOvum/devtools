@@ -7,12 +7,14 @@ import Base64Tool from "./Base64Tool";
 import UuidGenerator from "./UuidGenerator";
 import RegexTester from "./RegexTester";
 import MarkdownPreview from "./MarkdownPreview";
+import MarkdownBuilder from "./MarkdownBuilder";
 import DiffChecker from "./DiffChecker";
 import QrCodeGenerator from "./QrCodeGenerator";
 import JsonToTypescript from "./JsonToTypescript";
 import PwaManifestGenerator from "./PwaManifestGenerator";
 import HtmlEditor from "./HtmlEditor";
 import HtmlConverter from "./HtmlConverter";
+import JsonYamlConverter from "./JsonYamlConverter";
 import JsMinifier from "./JsMinifier";
 import AutoRegex from "./AutoRegex";
 import CssConverter from "./CssConverter";
@@ -28,12 +30,14 @@ const REACT_TOOLS: Record<string, React.ComponentType> = {
   "uuid-generator": UuidGenerator,
   "regex-tester": RegexTester,
   "markdown-preview": MarkdownPreview,
+  "markdown-builder": MarkdownBuilder,
   "diff-checker": DiffChecker,
   "qr-generator": QrCodeGenerator,
   "json-to-typescript": JsonToTypescript,
   "pwa-manifest": PwaManifestGenerator,
   "html-editor": HtmlEditor,
   "html-converter": HtmlConverter,
+  "json-yaml-converter": JsonYamlConverter,
   "js-minifier": JsMinifier,
   "auto-regex": AutoRegex,
   "css-converter": CssConverter,

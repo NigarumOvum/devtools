@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { AgentCard } from './AgentCard';
 import { ui, defaultLang } from '../i18n/ui';
 
@@ -120,7 +121,13 @@ export const AgentsManager: React.FC<{ lang: string }> = ({ lang }) => {
                     </>
                 )}
             </div>
-            <section id="agents-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up">
+            <motion.section
+                id="agents-grid"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ staggerChildren: 0.1 }}
+            >
                 <div className="flex flex-col items-center justify-center p-12 glass-card rounded-[3rem] border-2 border-dashed border-slate-700/50 bg-slate-900/20 text-center min-h-[400px] group hover:border-blue-500/50 transition-colors">
                     <div className="w-20 h-20 rounded-3xl bg-slate-800 flex items-center justify-center text-4xl mb-6 text-slate-500 group-hover:scale-110 group-hover:bg-blue-600/20 group-hover:text-blue-400 transition-all duration-500">
                         ➕
@@ -139,16 +146,23 @@ export const AgentsManager: React.FC<{ lang: string }> = ({ lang }) => {
                     </a>
                 </div>
 
-                {allAgents.map(agent => (
-                    <div key={agent.id} className="cursor-pointer" onClick={() => window.location.href = `/studio#expert-chat`}>
+                {allAgents.map((agent, index) => (
+                    <motion.div
+                        key={agent.id}
+                        className="cursor-pointer"
+                        onClick={() => window.location.href = `/studio#expert-chat`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, type: 'spring', stiffness: 100 }}
+                    >
                         <AgentCard
                             agent={agent}
                             isSelected={selectedAgentId === agent.id}
                             onSelect={setSelectedAgentId}
                         />
-                    </div>
+                    </motion.div>
                 ))}
-            </section>
+            </motion.section>
         </section>
     );
 };

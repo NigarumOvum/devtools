@@ -58,6 +58,16 @@ const navItems = [
         <div class="hidden md:block h-6 w-px bg-slate-200 dark:bg-slate-700">
         </div>
 
+        <LanguageSelector />
+
+        <div class="hidden md:block">
+          <ThemeToggle />
+        </div>
+
+        <div class="md:hidden">
+          <ThemeToggle />
+        </div>
+
         <div class="hidden md:flex items-center gap-3">
           {
             !session ? (
@@ -100,16 +110,6 @@ const navItems = [
             </div>
           )
         }
-
-        <LanguageSelector />
-
-        <div class="hidden md:block">
-          <ThemeToggle />
-        </div>
-
-        <div class="md:hidden">
-          <ThemeToggle />
-        </div>
 
         <!-- Mobile menu button -->
         <button

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { ExpertChat } from './ExpertChat';
 import { PromptLibrary } from './PromptLibrary';
 import { AuthButton } from './AuthButton';
@@ -114,14 +115,20 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
     return (
         <div className="flex flex-col gap-12">
             {/* Main Chat Interface - Top */}
-            <div id="expert-chat-container" className="w-full scroll-mt-24 min-h-[700px]">
+            <motion.div
+                id="expert-chat-container"
+                className="w-full scroll-mt-24 min-h-[700px]"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+            >
                 <ExpertChat
                     initialPrompt={selectedPrompt}
                     onPromptUsed={() => setSelectedPrompt(null)}
                     selectedAgentId={selectedAgentId}
                     agents={allAgents}
                 />
-            </div>
+            </motion.div>
 
             {/* Bottom Section: Controls and Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-slate-800/50">
@@ -219,7 +226,12 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                 </div>
 
                 {/* Right Column: Stats and Feature Cards */}
-                <div className="space-y-8">
+                <motion.div
+                    className="space-y-8"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center">
@@ -275,7 +287,7 @@ export const StudioSection: React.FC<{ initialSession: any; lang?: keyof typeof 
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Modals */}
